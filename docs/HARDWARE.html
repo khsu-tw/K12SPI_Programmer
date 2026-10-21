@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<title>硬體接線（PIC16F13145-CNANO / PIC18F16Q20-CNANO 共用）</title>
+<style>
+body{font-family:"Segoe UI","Microsoft JhengHei",sans-serif;max-width:1100px;margin:2em auto;padding:0 1em;
+     line-height:1.6;color:#222}
+h1{border-bottom:2px solid #c00;padding-bottom:.3em}
+h2{border-bottom:1px solid #ccc;padding-bottom:.2em;margin-top:1.6em}
+code{font-family:Consolas,monospace;background:#f2f2f2;padding:1px 4px;border-radius:3px}
+pre{background:#10141a;color:#ddd;padding:12px;overflow-x:auto;border-radius:4px}
+pre code{background:none;color:inherit;padding:0}
+table{border-collapse:collapse;margin:1em 0}
+th,td{border:1px solid #bbb;padding:4px 8px;vertical-align:top}
+th{background:#eef2f6}
+img{max-width:100%}
+nav{font-size:.9em;margin-bottom:1em}
+</style></head>
+<body>
+<nav><a href="../README.html">README</a> | <a href="HARDWARE.html">HARDWARE</a> | <a href="PROTOCOL.html">PROTOCOL</a> | <a href="SFDP_MAPPING.html">SFDP_MAPPING</a> | <a href="USER_GUIDE.html">USER_GUIDE</a> | <a href="../ChangeHistory.html">ChangeHistory</a></nav>
+<h1>硬體接線（PIC16F13145-CNANO / PIC18F16Q20-CNANO 共用）</h1>
+<p>依據 <code>DOC/PIC16F13145-CNANO-UserGuide-DS50003649.pdf</code>、<code>DOC/PIC18F16Q20-CNANO-UserGuide-DS50003588.pdf</code>（Figure 1-3 Pinout、Table 3-2、LED/SW）與 <code>DOC/MX25S1633FVer13_Microchip.pdf</code>。</p>
+<p><strong>兩片開發板的邊緣排針位置相同，TXS0108E 與 flash 的接線完全共用，換板不需要改線</strong>；只有 Nano 上實際對應的 MCU 腳位名稱不同（韌體依編譯的晶片自動選擇）。</p>
+<p><img alt="wiring" src="wiring_CNANO_TXS0108E_MX25S1633F.png"></p>
+<p>（向量圖：<a href="wiring_CNANO_TXS0108E_MX25S1633F.svg">wiring_CNANO_TXS0108E_MX25S1633F.svg</a>；由 <code>tools/make_wiring_diagram.py</code> 產生）</p>
+<pre><code>[PC GUI] --USB-C--&gt; [Curiosity Nano]  板載 debugger：USB CDC &lt;-&gt; UART（RC4 TX / RC5 RX，兩板皆已在板上連好）
+                     │ VTG = 3.3V
+                     └ 6 條 SPI/控制線 --3.3V--&gt; [TXS0108E  B側 | A側] --1.2V--&gt; [MX25S1633F]</code></pre>
+<h2>腳位對照</h2>
+<table><thead><tr><th>功能</th><th>Nano 邊緣位置</th><th>PIC16F13145</th><th>PIC18F16Q20</th><th>TXS0108E（B→A）</th><th>MX25S1633F</th></tr></thead><tbody><tr><td>CS#</td><td>左排 <code>SPI SS</code></td><td>RB5</td><td>RA4</td><td>B1 → A1</td><td>pin 1 CS#</td></tr><tr><td>MISO</td><td>左排 <code>SPI MISO</code></td><td>RC7</td><td>RC6</td><td>B2 → A2</td><td>pin 2 SO/SIO1</td></tr><tr><td>WP#</td><td>右排，VTG 往下第 7 孔</td><td>RA4</td><td>RB7</td><td>B3 → A3</td><td>pin 3 WP#/SIO2</td></tr><tr><td>MOSI</td><td>左排 <code>SPI MOSI</code></td><td>RC6</td><td>RC3</td><td>B4 → A4</td><td>pin 5 SI/SIO0</td></tr><tr><td>SCLK</td><td>左排 <code>SPI SCK</code></td><td>RB7</td><td>RA5</td><td>B5 → A5</td><td>pin 6 SCLK</td></tr><tr><td>RESET#</td><td>左排 <code>I2C SDA</code>（18F16Q20 絲印為 I3C1 SDA）</td><td>RB4</td><td>RC1</td><td>B6 → A6</td><td>pin 7 RESET#/SIO3</td></tr><tr><td>3.3V（VCCB）</td><td>VTG</td><td>VTG</td><td>VTG</td><td>VCCB</td><td>—</td></tr><tr><td>1.2V（VCCA）</td><td>外接 1.2V 電源</td><td>—</td><td>—</td><td>VCCA、<strong>OE</strong></td><td>pin 8 VCC</td></tr><tr><td>VSENSE（選配）</td><td>右排，VTG 往下第 2 孔</td><td>RA1</td><td>RA1</td><td>—</td><td>接 1.2V 軌（VCCA / flash VCC），韌體以 ADC 量測</td></tr><tr><td>GND</td><td>GND</td><td>GND</td><td>GND</td><td>GND</td><td>pin 4 GND</td></tr></tbody></table>
+<ul><li>左排（USB 朝上，由上往下）：<code>NC、ID、CDC RX、CDC TX、DBG1、DBG2、UART TX(RC4)、UART RX(RC5)、I2C SDA、I2C SCL、SPI MOSI、SPI MISO、SPI SCK、SPI SS、GND</code>，兩板相同，<strong>接線以板上絲印為準</strong>。</li><li>右排（由上往下）：<ul><li>PIC16F13145：<code>VBUS、VOFF、DBG3、DBG0、GND、VTG、RA2、RA1、RC0、RC1、RC2(LED0)、RC3(SW0)、RA4、RA5、GND</code></li><li>PIC18F16Q20：<code>VBUS、VOFF、DBG3、DBG0、GND、VTG、RA0、RA1、RB5、RB6、RC7(LED0)、NC、RB7、RA2、GND</code></li><li>WP# 用 VTG 往下第 7 孔（16F13145 = RA4，18F16Q20 = RB7）。</li></ul></li><li>UART（RC4/RC5）、LED0、SW0 都已在板上連接，<strong>不需要額外接線</strong>：LED0 = RC2（16F13145）/ RC7（18F16Q20）；SW0 = RC3（16F13145）/ RA2（18F16Q20）。</li><li>SPI 為韌體 bit-bang（Mode 0），兩板腳位對照表寫在 <code>firmware/src/main.c</code> 檔頭。</li><li>Nano 的 USB-C 同時提供：供電、燒錄（<code>CURIOSITY</code> 磁碟機）、虛擬序列埠（Curiosity Virtual COM Port）。</li><li><strong>18F16Q20 專用</strong>：RB5/RB6 屬 VDDIO3 域，板上固定供電 1.2V，只能做 I2C/I3C，本專案不使用；RC0/RC1 屬 VDDIO2 域，預設由 VCC_TARGET（3.3V）供電，所以 RC1 可當一般 GPIO。<strong>16F13145</strong> 只有單一 VDD 域（= VTG），所有腳都是 3.3V。</li><li>1.2V 可用獨立 LDO；<strong>不要</strong>把 18F16Q20 Nano 上 VDDIO3 的 1.2V（MCP1711，J107）拿來供 flash，電流與雜訊預算不明。</li><li>16F13145 的 RA4/RA5 預設不接 32.768 kHz 晶振（跳線 J107/J108 未切斷時為一般 GPIO，本專案使用 RA4）。</li></ul>
+<h2>替代方案：LSF0108 + SOIC-8 flash（PIC18F16Q20-CNANO）</h2>
+<p><img alt="wiring LSF0108" src="wiring_PIC18F16Q20-CNANO_LSF0108_SPIFlash_SOIC8.png"></p>
+<p>（向量圖：<a href="wiring_PIC18F16Q20-CNANO_LSF0108_SPIFlash_SOIC8.svg">wiring_PIC18F16Q20-CNANO_LSF0108_SPIFlash_SOIC8.svg</a>；由 <code>tools/make_wiring_diagram_lsf0108.py</code> 產生。依據 <code>DOC/LSF0108.pdf</code>（SDLS966M）與 <code>DOC/LSF0108_EVK.pdf</code>。）</p>
+<p>信號與 Nano 腳位和上面的 TXS0108E 版完全相同（CS# = RA4、MISO = RC6、WP# = RB7、MOSI = RC3、SCLK = RA5、RESET# = RC1），只是 TXS0108E 換成 LSF0108，flash 為 8-pin SOIC。<strong>LSF0108 是開關式（pass-gate）轉換器，與 TXS0108E 不同的地方：</strong></p>
+<table><thead><tr><th>項目</th><th>LSF0108 的做法</th></tr></thead><tbody><tr><td>方向</td><td>自動雙向，沒有方向腳、<strong>沒有 OE 腳</strong></td></tr><tr><td>致能</td><td><strong>EN（pin 20）直接接 Vref_B（pin 19）</strong>，並從 VTG 經 <strong>200 kΩ</strong> 偏壓；Vref_B 旁放 0.1 µF。EN 不可用推挽輸出直接驅動</td></tr><tr><td>電源</td><td>Vref_B（pin 19）= VTG 3.3 V；Vref_A（pin 2）= 外接 1.2 V（同時接 flash pin 8）；要求 Vref_B ≥ Vref_A + 0.8 V（3.3 V / 1.2 V 符合）。無上電順序限制</td></tr><tr><td>Vref_A 電流</td><td>正常工作時有電流<strong>流進</strong> Vref_A，外接 1.2 V 電源必須能吸收，否則 1.2 V 軌會被推高</td></tr><tr><td>通道</td><td>B1~B6（pin 18~13）↔ A1~A6（pin 3~8）；B7/B8、A7/A8 懸空</td></tr><tr><td>上拉電阻</td><td><strong>兩側都要</strong>（B 側必要；A 側在 flash 腳漏電流 &gt; 1 µA 時必要，資料手冊 ILI = ±2 µA，所以要接）</td></tr></tbody></table>
+<h3>上拉電阻（依 PIC18F16Q20 的 IOL ≤ 10 mA 設計）</h3>
+<p><strong>選用值：B 側（3.3 V）750 Ω × 6；A 側（1.2 V）240 Ω × 5（CS#、WP#、MOSI、SCLK、RESET#），MISO 的 A 側 1 kΩ。</strong></p>
+<p>設計依據：某條線被 MCU 拉低時，B 側與 A 側（經 LSF0108 導通）兩顆上拉電阻的電流都流進 MCU 腳位（sink current，灌電流）。PIC18F06/16Q20 資料手冊 D360：VOL ≤ 0.6 V 的條件是 IOL = 10 mA，所以</p>
+<p>I_sink = (3.3 V − VOL) / R_B + (1.2 V − VOL) / R_A ≤ 10 mA</p>
+<table><thead><tr><th>項目</th><th>算式</th><th>結果</th></tr></thead><tbody><tr><td>MCU 腳位拉低（最壞，VOL = 0 V）</td><td>3.3 V / 750 Ω + 1.2 V / 240 Ω = 4.4 + 5.0</td><td><strong>9.4 mA</strong>（≤ 10 mA）</td></tr><tr><td>MCU 腳位拉低（VOL = 0.175 V）</td><td></td><td>8.4 mA</td></tr><tr><td>MISO（flash SO 拉低）</td><td>3.3 V / 750 Ω + 1.2 V / 1 kΩ = 4.4 + 1.2</td><td>5.6 mA 由 flash 灌入</td></tr><tr><td>通過 LSF0108 pass transistor（VOL = 0.35 V）</td><td>B：(3.3 − 0.35)/750；A：(1.2 − 0.35)/240</td><td>3.9 mA / 3.5 mA，遠低於 15 mA 上限</td></tr></tbody></table>
+<ul><li><strong>為什麼不用 LSF0108 資料手冊的 15 mA 設定</strong>：9.2.1.2.2 節的 Eq. 3（Rpu = (Vpu − 0.35 V)/15 mA，+10 %，向上取 E24）得到 B 側 220 Ω、A 側 68 Ω，但那時 MCU 要灌約 29 mA，是 IOL 規格（10 mA）的約 3 倍，所以改用上面的值。資料手冊的 15 mA 是 pass transistor 電流的<strong>上限</strong>（確保導通壓降 ≤ 350 mV），電流較小時壓降只會更小，不影響低電位判定。</li><li><strong>MISO 另外處理</strong>：四顆 flash 的 VOL 只規格到 IOL = 100 µA，沒有保證能灌幾 mA，所以 MISO 的 A 側用 1 kΩ 把 flash 的灌電流壓到最小（B 側仍須有上拉，LSF0108 規定）。</li><li><strong>代價</strong>：電阻越大，上升緣越慢（RC 時間常數）。若 SPI 在高時脈下出錯，先降低 SPI clock 或重跑 📶 Link Test，再考慮把 A 側電阻在 IOL 預算內調小。</li><li><strong>flash 的 VIL</strong>：MCU 在 10 mA 時只保證 VOL ≤ 0.6 V（典型值遠低於此）；flash 的 VIL 最大值為 GD25UF16E 0.24 V、MX25S1633F 0.30 V、W25Q 系列 0.36 V（皆約 0.2~0.3 × VCC）。最壞情況不保證，<strong>請用示波器量 A 側低電位</strong>（SCLK、MOSI、CS#），應低於 0.2 V。</li><li>6 條線同時為低時 VTG 最壞約 6 × 4.4 mA ≈ 26 mA；1.2 V 軌的負載約 6 × 5 mA ≈ 30 mA 流向 MCU 側（經 LSF0108）。</li><li>此版本未用韌體實測；韌體的 SPI 時序與 <code>Pin drive</code> 設定是針對 TXS0108E 調整的，換 LSF0108 後請重新執行 📶 Link Test。</li></ul>
+<h2>IO 電壓偵測（VSENSE，選配）</h2>
+<ul><li>支援的三顆 flash 共同的安全電壓窗口為 <strong>1.14–1.26 V</strong>（MX25S1633F 1.14–1.6 V；GD25UF16E、W25Q65NE 1.14–1.26 V）。</li><li>JESD216H（SFDP）<strong>沒有電壓欄位</strong>，所以 SFDP 無法得知 IO 電壓；要真的量測必須把 1.2 V 軌接到 <strong>VSENSE（RA1，右排 VTG 往下第 2 孔，兩片 Nano 都是 RA1）</strong>。</li><li>韌體以內建 FVR（2.048 V）為 ADC 參考，與 3.3 V 的 VTG 無關，10-bit，解析度 2 mV。RA1 同時是 16F13145 的 ICSPCLK / 18F16Q20 的 RA1，接 1.2 V 軌不影響燒錄板子上的程式；若用 MPLAB 偵錯器連線時請先拔掉此線。</li><li>電壓不在 1.14–1.26 V：韌體拒絕所有 flash 寫入/抹除（<code>ERR:vio</code>），GUI 顯示紅色 <code>OUT OF RANGE</code>。</li><li>沒接 VSENSE：GUI 以弱上拉前後讀值差判斷腳位浮接，改以 ID + SFDP 判斷並顯示警告；也可勾選「Ignore VSENSE」。</li></ul>
+<h2>重要警告</h2>
+<ul><li>MX25S1633F 的 <strong>VCC 只能 1.14–1.6V</strong>；GD25UF16E / W25Q65NE 只能 <strong>1.14–1.26V</strong>。flash 的任何一腳都不可以接到 3.3V（也不可接到 VTG），<strong>請用 1.2 V，不要用 1.5 V / 1.8 V</strong>。</li><li>TXS0108E 規定 <strong>VCCA ≤ VCCB</strong>：<strong>VCCA = 1.2V（flash 側）、VCCB = 3.3V（VTG，Nano 側）</strong>，<strong>OE 接 VCCA</strong>。</li><li>VTG 出廠預設 3.3V。若曾用 MPLAB X 或 <code>CMD:</code> 檔案改過目標電壓，請先改回 3.3V。</li><li>上電順序：先接 USB（VTG 上電），再給 1.2V；斷電反之。各電源 GND 共地，VCC 腳旁放 0.1µF。</li><li>上電前先用電表確認 VCCA、OE、flash pin 8 約 1.2V，flash 任何一腳沒有 3.3V。</li><li>未使用的 TXS 通道（A7/A8、B7/B8）可以懸空。</li></ul>
+<!-- generated from HARDWARE.md by tools/md2html.py; edit the .md and regenerate -->
+</body></html>

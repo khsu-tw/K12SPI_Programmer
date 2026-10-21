@@ -1,0 +1,318 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup: Create venv + install requirements",
+      "type": "shell",
+      "command": "./setup_env.sh",
+      "args": [],
+      "windows": {
+        "command": "setup_env.bat",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "--no-pause"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "FW: Build both boards (XC8)",
+      "type": "shell",
+      "command": "firmware/build.bat",
+      "args": [
+        "all"
+      ],
+      "windows": {
+        "command": "firmware/build.bat",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "all"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "FW: Build PIC16F13145-CNANO",
+      "type": "shell",
+      "command": "firmware/build.bat",
+      "args": [
+        "16f13145"
+      ],
+      "windows": {
+        "command": "firmware/build.bat",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "16f13145"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "group": "build"
+    },
+    {
+      "label": "FW: Build PIC18F16Q20-CNANO",
+      "type": "shell",
+      "command": "firmware/build.bat",
+      "args": [
+        "18f16q20"
+      ],
+      "windows": {
+        "command": "firmware/build.bat",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "18f16q20"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "group": "build"
+    },
+    {
+      "label": "FW: Flash PIC16F13145-CNANO (drag-and-drop)",
+      "type": "shell",
+      "command": "firmware/flash_nano.bat",
+      "args": [
+        "16f13145"
+      ],
+      "windows": {
+        "command": "firmware/flash_nano.bat",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "16f13145"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "group": "build"
+    },
+    {
+      "label": "FW: Flash PIC18F16Q20-CNANO (drag-and-drop)",
+      "type": "shell",
+      "command": "firmware/flash_nano.bat",
+      "args": [
+        "18f16q20"
+      ],
+      "windows": {
+        "command": "firmware/flash_nano.bat",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "18f16q20"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "group": "build"
+    },
+    {
+      "label": "GUI: Run",
+      "type": "shell",
+      "command": "./tools/py.sh",
+      "args": [
+        "gui/mx25s1633_gui.py"
+      ],
+      "windows": {
+        "command": "tools/py.cmd",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "gui/mx25s1633_gui.py"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "GUI: Build Windows EXE",
+      "type": "shell",
+      "command": "gui/build_exe.bat",
+      "args": [],
+      "windows": {
+        "command": "gui/build_exe.bat",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "--no-pause"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Test: pytest",
+      "type": "shell",
+      "command": "./tools/py.sh",
+      "args": [
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests"
+      ],
+      "windows": {
+        "command": "tools/py.cmd",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c"
+            ]
+          },
+          "cwd": "${workspaceFolder}"
+        },
+        "args": [
+          "-m",
+          "pytest",
+          "-v",
+          "-p",
+          "no:cacheprovider",
+          "tests"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "group": "test"
+    }
+  ],
+  "inputs": []
+}
