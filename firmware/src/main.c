@@ -1,24 +1,21 @@
 /*
- * 1.2 V SPI-NOR programmer bridge for Curiosity Nano boards
+ * 1.2 V SPI-NOR programmer bridge for the PIC18F16Q20 Curiosity Nano (PIC18F16Q20-CNANO, DS50003588)
  *   (MX25S1633F / GD25UF16E / W25Q65NE: all JESD216 SFDP capable, 3-byte addressing)
- *   - PIC16F13145-CNANO (DS50003649)
- *   - PIC18F16Q20-CNANO (DS50003588)
- * One source file; the board is selected by the compiler device (-mcpu=16F13145 / -mcpu=18F16Q20).
  *
  * PC (USB CDC = on-board debugger) <-UART-> MCU <-SPI 3.3V-> TXS0108E <-SPI 1.2V-> MX25S1633F
  *
- * Both boards use the SAME physical edge-connector holes for the flash wiring (docs/HARDWARE.md):
+ * Flash wiring (docs/HARDWARE.md):
  *
- *   function   edge label           PIC16F13145   PIC18F16Q20   TXS0108E B side
- *   CS#        SPI SS               RB5           RA4           B1
- *   MISO       SPI MISO             RC7           RC6           B2
- *   WP#        right row 7 (*)      RA4           RB7           B3
- *   MOSI       SPI MOSI             RC6           RC3           B4
- *   SCLK       SPI SCK              RB7           RA5           B5
- *   RESET#     I2C SDA / I3C1 SDA   RB4           RC1           B6
- *   VSENSE     right row, RA1 hole  RA1           RA1           (1.2 V rail; optional, ADC)
- *   UART TX/RX (board fixed)        RC4 / RC5     RC4 / RC5     (USB CDC)
- *   LED0 (active low)               RC2           RC7
+ *   function   edge label           PIC18F16Q20   TXS0108E B side
+ *   CS#        SPI SS               RA4           B1
+ *   MISO       SPI MISO             RC6           B2
+ *   WP#        right row 7 (*)      RB7           B3
+ *   MOSI       SPI MOSI             RC3           B4
+ *   SCLK       SPI SCK              RA5           B5
+ *   RESET#     I2C SDA / I3C1 SDA   RC1           B6
+ *   VSENSE     right row, RA1 hole  RA1           (1.2 V rail; optional, ADC)
+ *   UART TX/RX (board fixed)        RC4 / RC5     (USB CDC)
+ *   LED0 (active low)               RC7
  *   (*) 7th hole below VTG on the right-hand edge row.
  *
  * On the PIC18F16Q20, RB5/RB6 are MVIO pins fixed at 1.2 V (I2C/I3C only) and are NOT used.
@@ -28,37 +25,10 @@
 #include <xc.h>
 #include <stdint.h>
 
-#if defined(_16F13145)
-#define BOARD_PIC16F13145 1
-#elif defined(_18F16Q20)
-#define BOARD_PIC18F16Q20 1
-#else
-#error "Unsupported device: build with -mcpu=16F13145 or -mcpu=18F16Q20"
+#if !defined(_18F16Q20)
+#error "Unsupported device: build with -mcpu=18F16Q20"
 #endif
 
-#if defined(BOARD_PIC16F13145)
-/* HFINTOSC 32 MHz selected by RSTOSC; the hardware loads OSCFRQ to match. */
-#pragma config FEXTOSC = OFF, RSTOSC = HFINTOSC_32MHz, CLKOUTEN = OFF, CSWEN = ON
-#pragma config VDDAR = HI, FCMEN = OFF
-#pragma config MCLRE = EXTMCLR, PWRTS = PWRT_OFF, LPBOREN = OFF, BOREN = ON, BORV = LO
-#pragma config DACAUTOEN = OFF, PPS1WAY = OFF, STVREN = ON, DEBUG = OFF
-#pragma config WDTCPS = WDTCPS_31, WDTE = OFF, WDTCWS = WDTCWS_7, WDTCCS = SC
-#pragma config BBSIZE = BB512, BBEN = OFF, SAFEN = OFF
-#pragma config WRTAPP = OFF, WRTB = OFF, WRTC = OFF, WRTSAF = OFF, LVP = ON
-#pragma config CP = OFF
-
-#define _XTAL_FREQ 32000000UL
-#define BOARD_NAME "PIC16F13145-CNANO"
-#define UART_BRG   15               /* BRG16=1, BRGH=1: 32 MHz / (4 * 16) = 500 kbps (debugger CDC max) */
-
-#define CS_PIN    LATBbits.LATB5
-#define SCK_PIN   LATBbits.LATB7
-#define MOSI_PIN  LATCbits.LATC6
-#define MISO_PIN  PORTCbits.RC7
-#define WP_PIN    LATAbits.LATA4
-#define RST_PIN   LATBbits.LATB4
-#define LED_PIN   LATCbits.LATC2    /* 0 = LED on */
-#else
 /* MVECEN = OFF: every interrupt uses the single vector at 0x0008 (our ISR); the low-priority
  * vector warning from XC8 is harmless. */
 #pragma config FEXTOSC = OFF, RSTOSC = HFINTOSC_64MHZ, CLKOUTEN = OFF, PR1WAY = OFF, CSWEN = ON
@@ -81,7 +51,6 @@
 #define WP_PIN    LATBbits.LATB7
 #define RST_PIN   LATCbits.LATC1    /* VDDIO2 domain = VCC_TARGET (3.3 V) by default */
 #define LED_PIN   LATCbits.LATC7    /* 0 = LED on */
-#endif
 
 #define FW_VERSION "5.1.1"
 
@@ -114,17 +83,6 @@ static uint8_t vio_check = 1;       /* 1 = refuse program/erase/WRSR while VSENS
 /* ---------------------------------------------------------------- UART */
 static void uart_init(void)
 {
-#if defined(BOARD_PIC16F13145)
-    RX1PPS = 0x15;                  /* RC5 */
-    RC4PPS = 0x13;                  /* TX1 on RC4 */
-    SP1BRG = UART_BRG;
-    BAUD1CONbits.BRG16 = 1;
-    TX1STA = 0x24;                  /* TXEN=1, SYNC=0, BRGH=1 */
-    RC1STA = 0x90;                  /* SPEN=1, CREN=1 */
-    PIE4bits.RC1IE = 1;
-    INTCONbits.PEIE = 1;
-    INTCONbits.GIE = 1;
-#else
     U1RXPPS = 0x15;                 /* RC5 */
     RC4PPS  = 0x13;                 /* TX1 on RC4 */
     U1BRG   = UART_BRG;
@@ -132,18 +90,12 @@ static void uart_init(void)
     U1CON1bits.ON = 1;
     PIE6bits.U1RXIE = 1;
     INTCON0bits.GIE = 1;
-#endif
 }
 
 static void uart_putc(uint8_t c)
 {
-#if defined(BOARD_PIC16F13145)
-    while (!PIR4bits.TX1IF) { }
-    TX1REG = c;
-#else
     while (U1FIFObits.TXBF) { }
     U1TXB = c;
-#endif
 }
 
 static void uart_puts(const char *s)
@@ -159,17 +111,6 @@ static volatile uint8_t rx_tail;    /* written by main only */
 
 void __interrupt() isr(void)
 {
-#if defined(BOARD_PIC16F13145)
-    while (PIR4bits.RC1IF) {
-        uint8_t next = (uint8_t)(rx_head + 1);
-        uint8_t c;
-        if (RC1STAbits.OERR) { RC1STAbits.CREN = 0; RC1STAbits.CREN = 1; rx_ovf = 1; }
-        c = RC1REG;
-        if (next == rx_tail) { rx_ovf = 1; continue; }     /* ring full: drop */
-        rx_buf[rx_head] = c;
-        rx_head = next;
-    }
-#else
     while (!U1FIFObits.RXBE) {
         uint8_t next = (uint8_t)(rx_head + 1);
         uint8_t c = U1RXB;
@@ -178,7 +119,6 @@ void __interrupt() isr(void)
         rx_head = next;
     }
     if (U1ERRIRbits.RXFOIF) { U1ERRIRbits.RXFOIF = 0; rx_ovf = 1; }
-#endif
 }
 
 static uint8_t uart_getc(void)
@@ -262,7 +202,7 @@ static uint8_t flash_wait(uint32_t timeout_ms)
     return 0;
 }
 
-/* CRC-32 (zlib / IEEE 802.3), nibble-wise table in program memory (16F13145 has only 1 KB RAM) */
+/* CRC-32 (zlib / IEEE 802.3), nibble-wise table in program memory (keeps RAM use low) */
 static const uint32_t crc_nib[16] = {
     0x00000000UL, 0x1DB71064UL, 0x3B6E20C8UL, 0x26D930ACUL, 0x76DC4190UL, 0x6B6B51F4UL,
     0x4DB26158UL, 0x5005713CUL, 0xEDB88320UL, 0xF00F9344UL, 0xD6D6A3E8UL, 0xCB61B38CUL,
@@ -331,9 +271,7 @@ static void read_line(void)
         uint8_t c = uart_getc();
         if (c == '\r') continue;
         if (c == '\n') {
-#if defined(BOARD_PIC18F16Q20)
             U1ERRIRbits.RXFOIF = 0;
-#endif
             rx_ovf = 0;
             break;
         }
@@ -537,15 +475,9 @@ static void cmd_slew(uint8_t limited)
 {
     /* SLRCONx bit = 1: slew-rate limited (slow edges); 0: maximum slew rate (fast edges) */
     uint8_t v = limited ? 1 : 0;
-#if defined(BOARD_PIC16F13145)
-    SLRCONBbits.SLRB5 = v; SLRCONBbits.SLRB7 = v; SLRCONBbits.SLRB4 = v;    /* CS#, SCLK, RESET# */
-    SLRCONCbits.SLRC6 = v;                                                   /* MOSI */
-    SLRCONAbits.SLRA4 = v;                                                   /* WP# */
-#else
     SLRCONAbits.SLRA4 = v; SLRCONAbits.SLRA5 = v;
     SLRCONCbits.SLRC3 = v;
     SLRCONBbits.SLRB7 = v; SLRCONCbits.SLRC1 = v;
-#endif
     uart_puts("OK\n");
 }
 
@@ -635,18 +567,10 @@ void main(void)
 
     /* idle levels before enabling outputs: CS#/WP#/RESET# high, SCK low, LED off */
     CS_PIN = 1; WP_PIN = 1; RST_PIN = 1; SCK_PIN = 0; MOSI_PIN = 0; LED_PIN = 1;
-#if defined(BOARD_PIC16F13145)
-    TRISBbits.TRISB5 = 0; TRISBbits.TRISB7 = 0; TRISBbits.TRISB4 = 0;      /* CS#, SCLK, RESET# */
-    TRISAbits.TRISA4 = 0;                                                   /* WP# */
-    TRISCbits.TRISC6 = 0;                                                   /* MOSI */
-    TRISCbits.TRISC2 = 0;                                                   /* LED0 */
-    TRISCbits.TRISC7 = 1;           /* MISO */
-#else
     TRISAbits.TRISA4 = 0; TRISAbits.TRISA5 = 0;
     TRISBbits.TRISB7 = 0;
     TRISCbits.TRISC1 = 0; TRISCbits.TRISC3 = 0; TRISCbits.TRISC7 = 0;
     TRISCbits.TRISC6 = 1;           /* MISO */
-#endif
     TRISCbits.TRISC5 = 1;           /* UART RX */
     TRISCbits.TRISC4 = 0;           /* UART TX */
 

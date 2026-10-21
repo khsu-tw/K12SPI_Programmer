@@ -1,50 +1,43 @@
-# 硬體接線（PIC16F13145-CNANO / PIC18F16Q20-CNANO 共用）
+# 硬體接線（PIC18F16Q20-CNANO）
 
-依據 `DOC/PIC16F13145-CNANO-UserGuide-DS50003649.pdf`、`DOC/PIC18F16Q20-CNANO-UserGuide-DS50003588.pdf`
+依據 `DOC/PIC18F16Q20-CNANO-UserGuide-DS50003588.pdf`
 （Figure 1-3 Pinout、Table 3-2、LED/SW）與 `DOC/MX25S1633FVer13_Microchip.pdf`。
-
-**兩片開發板的邊緣排針位置相同，TXS0108E 與 flash 的接線完全共用，換板不需要改線**；
-只有 Nano 上實際對應的 MCU 腳位名稱不同（韌體依編譯的晶片自動選擇）。
 
 ![wiring](wiring_CNANO_TXS0108E_MX25S1633F.png)
 
 （向量圖：[wiring_CNANO_TXS0108E_MX25S1633F.svg](wiring_CNANO_TXS0108E_MX25S1633F.svg)；由 `tools/make_wiring_diagram.py` 產生）
 
 ```
-[PC GUI] --USB-C--> [Curiosity Nano]  板載 debugger：USB CDC <-> UART（RC4 TX / RC5 RX，兩板皆已在板上連好）
+[PC GUI] --USB-C--> [Curiosity Nano]  板載 debugger：USB CDC <-> UART（RC4 TX / RC5 RX，已在板上連好）
                      │ VTG = 3.3V
                      └ 6 條 SPI/控制線 --3.3V--> [TXS0108E  B側 | A側] --1.2V--> [MX25S1633F]
 ```
 
 ## 腳位對照
 
-| 功能 | Nano 邊緣位置 | PIC16F13145 | PIC18F16Q20 | TXS0108E（B→A） | MX25S1633F |
-|---|---|---|---|---|---|
-| CS# | 左排 `SPI SS` | RB5 | RA4 | B1 → A1 | pin 1 CS# |
-| MISO | 左排 `SPI MISO` | RC7 | RC6 | B2 → A2 | pin 2 SO/SIO1 |
-| WP# | 右排，VTG 往下第 7 孔 | RA4 | RB7 | B3 → A3 | pin 3 WP#/SIO2 |
-| MOSI | 左排 `SPI MOSI` | RC6 | RC3 | B4 → A4 | pin 5 SI/SIO0 |
-| SCLK | 左排 `SPI SCK` | RB7 | RA5 | B5 → A5 | pin 6 SCLK |
-| RESET# | 左排 `I2C SDA`（18F16Q20 絲印為 I3C1 SDA） | RB4 | RC1 | B6 → A6 | pin 7 RESET#/SIO3 |
-| 3.3V（VCCB） | VTG | VTG | VTG | VCCB | — |
-| 1.2V（VCCA） | 外接 1.2V 電源 | — | — | VCCA、**OE** | pin 8 VCC |
-| VSENSE（選配） | 右排，VTG 往下第 2 孔 | RA1 | RA1 | — | 接 1.2V 軌（VCCA / flash VCC），韌體以 ADC 量測 |
-| GND | GND | GND | GND | GND | pin 4 GND |
+| 功能 | Nano 邊緣位置 | PIC18F16Q20 | TXS0108E（B→A） | MX25S1633F |
+|---|---|---|---|---|
+| CS# | 左排 `SPI SS` | RA4 | B1 → A1 | pin 1 CS# |
+| MISO | 左排 `SPI MISO` | RC6 | B2 → A2 | pin 2 SO/SIO1 |
+| WP# | 右排，VTG 往下第 7 孔 | RB7 | B3 → A3 | pin 3 WP#/SIO2 |
+| MOSI | 左排 `SPI MOSI` | RC3 | B4 → A4 | pin 5 SI/SIO0 |
+| SCLK | 左排 `SPI SCK` | RA5 | B5 → A5 | pin 6 SCLK |
+| RESET# | 左排 `I2C SDA`（18F16Q20 絲印為 I3C1 SDA） | RC1 | B6 → A6 | pin 7 RESET#/SIO3 |
+| 3.3V（VCCB） | VTG | VTG | VCCB | — |
+| 1.2V（VCCA） | 外接 1.2V 電源 | — | VCCA、**OE** | pin 8 VCC |
+| VSENSE（選配） | 右排，VTG 往下第 2 孔 | RA1 | — | 接 1.2V 軌（VCCA / flash VCC），韌體以 ADC 量測 |
+| GND | GND | GND | GND | pin 4 GND |
 
-- 左排（USB 朝上，由上往下）：`NC、ID、CDC RX、CDC TX、DBG1、DBG2、UART TX(RC4)、UART RX(RC5)、I2C SDA、I2C SCL、SPI MOSI、SPI MISO、SPI SCK、SPI SS、GND`，兩板相同，**接線以板上絲印為準**。
-- 右排（由上往下）：
-  - PIC16F13145：`VBUS、VOFF、DBG3、DBG0、GND、VTG、RA2、RA1、RC0、RC1、RC2(LED0)、RC3(SW0)、RA4、RA5、GND`
-  - PIC18F16Q20：`VBUS、VOFF、DBG3、DBG0、GND、VTG、RA0、RA1、RB5、RB6、RC7(LED0)、NC、RB7、RA2、GND`
-  - WP# 用 VTG 往下第 7 孔（16F13145 = RA4，18F16Q20 = RB7）。
+- 左排（USB 朝上，由上往下）：`NC、ID、CDC RX、CDC TX、DBG1、DBG2、UART TX(RC4)、UART RX(RC5)、I2C SDA、I2C SCL、SPI MOSI、SPI MISO、SPI SCK、SPI SS、GND`，**接線以板上絲印為準**。
+- 右排（由上往下）：`VBUS、VOFF、DBG3、DBG0、GND、VTG、RA0、RA1、RB5、RB6、RC7(LED0)、NC、RB7、RA2、GND`
+  - WP# 用 VTG 往下第 7 孔（RB7）。
 - UART（RC4/RC5）、LED0、SW0 都已在板上連接，**不需要額外接線**：
-  LED0 = RC2（16F13145）/ RC7（18F16Q20）；SW0 = RC3（16F13145）/ RA2（18F16Q20）。
-- SPI 為韌體 bit-bang（Mode 0），兩板腳位對照表寫在 `firmware/src/main.c` 檔頭。
+  LED0 = RC7；SW0 = RA2。
+- SPI 為韌體 bit-bang（Mode 0），腳位對照表寫在 `firmware/src/main.c` 檔頭。
 - Nano 的 USB-C 同時提供：供電、燒錄（`CURIOSITY` 磁碟機）、虛擬序列埠（Curiosity Virtual COM Port）。
-- **18F16Q20 專用**：RB5/RB6 屬 VDDIO3 域，板上固定供電 1.2V，只能做 I2C/I3C，本專案不使用；
+- RB5/RB6 屬 VDDIO3 域，板上固定供電 1.2V，只能做 I2C/I3C，本專案不使用；
   RC0/RC1 屬 VDDIO2 域，預設由 VCC_TARGET（3.3V）供電，所以 RC1 可當一般 GPIO。
-  **16F13145** 只有單一 VDD 域（= VTG），所有腳都是 3.3V。
 - 1.2V 可用獨立 LDO；**不要**把 18F16Q20 Nano 上 VDDIO3 的 1.2V（MCP1711，J107）拿來供 flash，電流與雜訊預算不明。
-- 16F13145 的 RA4/RA5 預設不接 32.768 kHz 晶振（跳線 J107/J108 未切斷時為一般 GPIO，本專案使用 RA4）。
 
 ## 替代方案：LSF0108 + SOIC-8 flash（PIC18F16Q20-CNANO）
 
@@ -95,9 +88,8 @@ I_sink = (3.3 V − VOL) / R_B + (1.2 V − VOL) / R_A ≤ 10 mA
 ## IO 電壓偵測（VSENSE，選配）
 
 - 支援的三顆 flash 共同的安全電壓窗口為 **1.14–1.26 V**（MX25S1633F 1.14–1.6 V；GD25UF16E、W25Q65NE 1.14–1.26 V）。
-- JESD216H（SFDP）**沒有電壓欄位**，所以 SFDP 無法得知 IO 電壓；要真的量測必須把 1.2 V 軌接到 **VSENSE（RA1，右排 VTG 往下第 2 孔，兩片 Nano 都是 RA1）**。
-- 韌體以內建 FVR（2.048 V）為 ADC 參考，與 3.3 V 的 VTG 無關，10-bit，解析度 2 mV。RA1 同時是 16F13145 的 ICSPCLK / 18F16Q20 的 RA1，
-  接 1.2 V 軌不影響燒錄板子上的程式；若用 MPLAB 偵錯器連線時請先拔掉此線。
+- JESD216H（SFDP）**沒有電壓欄位**，所以 SFDP 無法得知 IO 電壓；要真的量測必須把 1.2 V 軌接到 **VSENSE（RA1，右排 VTG 往下第 2 孔）**。
+- 韌體以內建 FVR（2.048 V）為 ADC 參考，與 3.3 V 的 VTG 無關，10-bit，解析度 2 mV。接 1.2 V 軌不影響燒錄板子上的程式；若用 MPLAB 偵錯器連線時請先拔掉此線。
 - 電壓不在 1.14–1.26 V：韌體拒絕所有 flash 寫入/抹除（`ERR:vio`），GUI 顯示紅色 `OUT OF RANGE`。
 - 沒接 VSENSE：GUI 以弱上拉前後讀值差判斷腳位浮接，改以 ID + SFDP 判斷並顯示警告；也可勾選「Ignore VSENSE」。
 

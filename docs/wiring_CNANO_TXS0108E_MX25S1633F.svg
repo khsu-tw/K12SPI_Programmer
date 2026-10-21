@@ -1,17 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" font-family="Arial">
 <rect width="100%" height="100%" fill="white"/>
-<text x="750" y="48" font-size="30" font-weight="bold" fill="#111111" text-anchor="middle">PIC16F13145 / PIC18F16Q20 Curiosity Nano  &lt;->  TXS0108E  &lt;->  MX25S1633F</text>
+<text x="750" y="48" font-size="30" font-weight="bold" fill="#111111" text-anchor="middle">PIC18F16Q20 Curiosity Nano  &lt;->  TXS0108E  &lt;->  MX25S1633F</text>
 <text x="750" y="82" font-size="18" font-weight="normal" fill="#c0392b" text-anchor="middle">All signals are 3.3 V on the Nano/B side and 1.2 V on the flash/A side.  Flash VCC must NEVER see 3.3 V.</text>
 <rect x="40" y="130" width="380" height="730" fill="#e8f0ff" stroke="#111111" stroke-width="3"/>
-<text x="230" y="165" font-size="22" font-weight="bold" fill="#111111" text-anchor="middle">Curiosity Nano (either board)</text>
-<text x="52" y="185" font-size="14" font-weight="normal" fill="#666666" text-anchor="start">same edge hole:  16F13145  |  18F16Q20</text>
+<text x="230" y="165" font-size="22" font-weight="bold" fill="#111111" text-anchor="middle">PIC18F16Q20 Curiosity Nano</text>
 <rect x="700" y="130" width="230" height="730" fill="#fff4d6" stroke="#111111" stroke-width="3"/>
 <text x="815" y="165" font-size="22" font-weight="bold" fill="#111111" text-anchor="middle">TXS0108E</text>
 <text x="710" y="185" font-size="15" font-weight="normal" fill="#666666" text-anchor="start">B side (3.3V)</text>
 <text x="920" y="185" font-size="15" font-weight="normal" fill="#666666" text-anchor="end">A side (1.2V)</text>
 <rect x="1210" y="130" width="250" height="730" fill="#e6f7e9" stroke="#111111" stroke-width="3"/>
 <text x="1335" y="165" font-size="22" font-weight="bold" fill="#111111" text-anchor="middle">MX25S1633F (8-pin)</text>
-<text x="52" y="212" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RB5  |  RA4</text>
+<text x="52" y="212" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RA4</text>
 <text x="52" y="234" font-size="13" font-weight="normal" fill="#666666" text-anchor="start">SPI SS</text>
 <polyline points="420,220 700,220" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="560" y="210" font-size="17" font-weight="bold" fill="#1f5fbf" text-anchor="middle">CS#</text>
@@ -19,7 +18,7 @@
 <text x="918" y="226" font-size="17" font-weight="bold" fill="#111111" text-anchor="end">A1</text>
 <polyline points="930,220 1210,220" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="1222" y="226" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">pin 1  CS#</text>
-<text x="52" y="292" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RC7  |  RC6</text>
+<text x="52" y="292" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RC6</text>
 <text x="52" y="314" font-size="13" font-weight="normal" fill="#666666" text-anchor="start">SPI MISO</text>
 <polyline points="420,300 700,300" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="560" y="290" font-size="17" font-weight="bold" fill="#1f5fbf" text-anchor="middle">MISO</text>
@@ -27,7 +26,7 @@
 <text x="918" y="306" font-size="17" font-weight="bold" fill="#111111" text-anchor="end">A2</text>
 <polyline points="930,300 1210,300" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="1222" y="306" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">pin 2  SO/SIO1</text>
-<text x="52" y="372" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RA4  |  RB7</text>
+<text x="52" y="372" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RB7</text>
 <text x="52" y="394" font-size="13" font-weight="normal" fill="#666666" text-anchor="start">edge #7 (right)</text>
 <polyline points="420,380 700,380" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="560" y="370" font-size="17" font-weight="bold" fill="#1f5fbf" text-anchor="middle">WP#</text>
@@ -35,7 +34,7 @@
 <text x="918" y="386" font-size="17" font-weight="bold" fill="#111111" text-anchor="end">A3</text>
 <polyline points="930,380 1210,380" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="1222" y="386" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">pin 3  WP#/SIO2</text>
-<text x="52" y="452" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RC6  |  RC3</text>
+<text x="52" y="452" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RC3</text>
 <text x="52" y="474" font-size="13" font-weight="normal" fill="#666666" text-anchor="start">SPI MOSI</text>
 <polyline points="420,460 700,460" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="560" y="450" font-size="17" font-weight="bold" fill="#1f5fbf" text-anchor="middle">MOSI</text>
@@ -43,7 +42,7 @@
 <text x="918" y="466" font-size="17" font-weight="bold" fill="#111111" text-anchor="end">A4</text>
 <polyline points="930,460 1210,460" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="1222" y="466" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">pin 5  SI/SIO0</text>
-<text x="52" y="532" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RB7  |  RA5</text>
+<text x="52" y="532" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RA5</text>
 <text x="52" y="554" font-size="13" font-weight="normal" fill="#666666" text-anchor="start">SPI SCK</text>
 <polyline points="420,540 700,540" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="560" y="530" font-size="17" font-weight="bold" fill="#1f5fbf" text-anchor="middle">SCLK</text>
@@ -51,7 +50,7 @@
 <text x="918" y="546" font-size="17" font-weight="bold" fill="#111111" text-anchor="end">A5</text>
 <polyline points="930,540 1210,540" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="1222" y="546" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">pin 6  SCLK</text>
-<text x="52" y="612" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RB4  |  RC1</text>
+<text x="52" y="612" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">RC1</text>
 <text x="52" y="634" font-size="13" font-weight="normal" fill="#666666" text-anchor="start">I2C/I3C SDA</text>
 <polyline points="420,620 700,620" fill="none" stroke="#1f5fbf" stroke-width="4"/>
 <text x="560" y="610" font-size="17" font-weight="bold" fill="#1f5fbf" text-anchor="middle">RESET#</text>
@@ -74,7 +73,7 @@
 <text x="712" y="806" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">GND</text>
 <polyline points="930,800 1210,800" fill="none" stroke="#111111" stroke-width="4"/>
 <text x="1222" y="806" font-size="17" font-weight="bold" fill="#111111" text-anchor="start">pin 4  GND</text>
-<text x="60" y="890" font-size="17" font-weight="normal" fill="#666666" text-anchor="start">Fixed on the Nano board (no wiring): RC4 = UART TX, RC5 = UART RX (USB CDC); LED0 = RC2 (16F13145) / RC7 (18F16Q20); SW0 = RC3 / RA2.</text>
+<text x="60" y="890" font-size="17" font-weight="normal" fill="#666666" text-anchor="start">Fixed on the Nano board (no wiring): RC4 = UART TX, RC5 = UART RX (USB CDC); LED0 = RC7; SW0 = RA2.</text>
 <text x="60" y="918" font-size="17" font-weight="normal" fill="#666666" text-anchor="start">18F16Q20 only: RB5/RB6 are 1.2 V MVIO pins (I2C/I3C only) - not used; RC1 is powered from VDDIO2 (= VCC_TARGET 3.3 V) by default.</text>
 <text x="60" y="946" font-size="17" font-weight="normal" fill="#666666" text-anchor="start">Power order: USB first, then the external 1.2 V supply. Common GND for Nano, TXS0108E, 1.2 V supply and flash. Add 0.1 uF at each VCC pin.</text>
 <text x="60" y="974" font-size="17" font-weight="normal" fill="#666666" text-anchor="start">Unused TXS channels (A7/A8, B7/B8) may be left open. Flash pin 3 WP# is driven high by firmware (WP# High option in the GUI).</text>

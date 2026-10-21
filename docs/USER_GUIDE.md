@@ -40,7 +40,7 @@
 
 ## 第一次使用的建議順序
 
-1. **先不接 flash**：只接 USB-C，燒好 Nano 韌體（`firmware/flash_nano.bat 16f13145` 或 `18f16q20`；用 MPLAB IPE 燒錄並回讀驗證，最後一行應為 `Programmed and verified`。**不要用拖放到 CURIOSITY 磁碟機**：PIC18F16Q20-CNANO 上 5.0.0 的 HEX 會被截斷，且 STATUS.TXT 仍顯示 Ready），GUI 按 Connect。出現 `Bridge alive.` 表示通訊正常；
+1. **先不接 flash**：只接 USB-C，燒好 Nano 韌體（`firmware/flash_nano.bat`；用 MPLAB IPE 燒錄並回讀驗證，最後一行應為 `Programmed and verified`。**不要用拖放到 CURIOSITY 磁碟機**：PIC18F16Q20-CNANO 上 5.0.0 的 HEX 會被截斷，且 STATUS.TXT 仍顯示 Ready），GUI 按 Connect。出現 `Bridge alive.` 表示通訊正常；
    這時 `ID:FF FF FF` 是正常的。
 2. **斷電接線**：依 HARDWARE.md 接好 TXS0108E 與 1.2V LDO，先不放 flash。上電後用電表確認 VCCA、OE、
    flash 座 pin 8 都是約 1.2V，flash 座任何一腳都沒有 3.3V。
@@ -96,7 +96,7 @@ SR1（05h）的位元定義**三家不同**，GUI 依偵測到的晶片自動切
 | 現象 | 處理方式 |
 |---|---|
 | 找不到 `CURIOSITY` 磁碟機 | 換一條支援資料傳輸的 USB-C 線；接 Nano 的 USB-C 埠；等 Windows 完成驅動安裝 |
-| 複製後 PS LED 快閃 2 秒（失敗） | 檔案損毀或 HEX 與板子不符（16f13145 ↔ PIC16F13145-CNANO、18f16q20 ↔ PIC18F16Q20-CNANO）：重新執行 `firmware\build.bat`；或改用 MPLAB X IPE 燒錄 |
+| 複製後 PS LED 快閃 2 秒（失敗） | 檔案損毀或 HEX 與板子不符（須為 PIC18F16Q20-CNANO 用的 pic18f16q20 HEX）：重新執行 `firmware\build.bat`；或改用 MPLAB X IPE 燒錄 |
 | 燒完後 GUI 連不上 | 拔插 USB；按 GUI 的 ↻ 重新整理；COM 埠名稱為 *Curiosity Virtual COM Port*，鮑率 500000 |
 
 ## 疑難排解：硬體與通訊

@@ -1,4 +1,4 @@
-# 序列埠協定（PC <-> PIC16F13145 / PIC18F16Q20 Curiosity Nano）
+# 序列埠協定（PC <-> PIC18F16Q20 Curiosity Nano）
 
 UART **500000 8N1**（Nano debugger CDC 上限 500 kbps）。指令為 ASCII 一行、以 `\n` 結尾（不分大小寫）；
 數值一律十六進位。回應為 `OK...` / `ERR:xxx` 一行。
@@ -6,7 +6,7 @@ UART **500000 8N1**（Nano debugger CDC 上限 500 kbps）。指令為 ASCII 一
 | 指令 | 回應 | 說明 |
 |---|---|---|
 | `PING` | `OK PONG` | 通訊測試 |
-| `INFO` | `OK PIC16F13145-CNANO SPINOR-BRIDGE 5.1.1`（18F16Q20 板回 `PIC18F16Q20-CNANO`） | 韌體資訊 |
+| `INFO` | `OK PIC18F16Q20-CNANO SPINOR-BRIDGE 5.1.1` | 韌體資訊 |
 | `ID` | `ID:C2 2B 25` | RDID 9Fh（MX25S1633F `C2 2B 25`、GD25UF16E `C8 83 15`、W25Q65NE `EF 65 17`） |
 | `SFDP addr len` | `OK` 後接 len 個原始位元組 | JESD216 Read SFDP（5Ah + 3 位元組位址 + 8 個 dummy clock），len ≤ 256 |
 | `VIO` | `VIO:aaaa bbbb` | VSENSE（RA1）電壓，單位 mV（十六進位）。`aaaa` = 一般讀值，`bbbb` = 開啟腳位弱上拉後的讀值；兩者差距大 = 腳位浮接（未接線） |
@@ -23,11 +23,11 @@ UART **500000 8N1**（Nano debugger CDC 上限 500 kbps）。指令為 ASCII 一
 | `B32 addr` | `OK` | 32KB Block Erase（52h） |
 | `BE addr` | `OK` | 64KB Block Erase（D8h） |
 | `CE` | `OK` | Chip Erase（60h），最長等 150 s（W25Q65NE tCE 最大 140 s） |
-| `WP 0\|1` | `OK` | 控制 WP#（16F13145: RA4 / 18F16Q20: RB7） |
+| `WP 0\|1` | `OK` | 控制 WP#（RB7） |
 | `SPEED n` | `OK` | SPI 延遲 0（最快）~3F，數字越大越慢 |
 | `SLEW 0\|1` | `OK` | 1 = SPI 輸出腳限制轉換率（邊緣較慢） |
-| `LED 0\|1` | `OK` | 1 = LED0 亮（16F13145: RC2 / 18F16Q20: RC7） |
-| `HWRESET` | `OK` | RESET# 腳拉低 2 ms（16F13145: RB4 / 18F16Q20: RC1） |
+| `LED 0\|1` | `OK` | 1 = LED0 亮（RC7） |
+| `HWRESET` | `OK` | RESET# 腳拉低 2 ms（RC1） |
 | `RST` | `OK` | RSTEN(66h)+RST(99h) |
 | `RDP` | `OK` | Release from Deep Power-Down（ABh）+ 等 50 µs + 一次 RDSR。韌體開機時也會自動執行一次；GUI 在 Auto Detect 讀 ID 前送出 |
 

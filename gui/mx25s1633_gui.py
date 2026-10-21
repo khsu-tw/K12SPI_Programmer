@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""1.2 V SPI-NOR Flash Programmer GUI  (PIC16F13145 / PIC18F16Q20 Curiosity Nano bridge).
+"""1.2 V SPI-NOR Flash Programmer GUI  (PIC18F16Q20 Curiosity Nano bridge).
 
-PC --USB CDC (500000 8N1)--> PIC16F13145-CNANO or PIC18F16Q20-CNANO --SPI--> TXS0108E --> flash
+PC --USB CDC (500000 8N1)--> PIC18F16Q20-CNANO --SPI--> TXS0108E --> flash
 Flash: MX25S1633F / GD25UF16E / W25Q65NE, identified automatically (JEDEC ID + JESD216H SFDP).
 Protocol: docs/PROTOCOL.md
 """
@@ -27,7 +27,7 @@ BAUD = 500000
 FLASH_SIZE = 0x200000      # default until Auto Detect has identified the part
 SECTOR = 0x1000
 PAGE = 0x100
-PORT_HINTS = ("curiosity", "pic16f13145", "pic18f16q20", "microchip", "mchp")
+PORT_HINTS = ("curiosity", "pic18f16q20", "microchip", "mchp")
 
 # (label, firmware SPEED value). Larger value = slower bit-banged SPI clock.
 SPEEDS = [("Max", 0), ("Fast", 1), ("Normal", 2), ("Slow", 8), ("Slower", 20), ("Slowest", 63)]
@@ -251,7 +251,7 @@ class Bridge:
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("1.2V SPI-NOR Flash Programmer  (PIC16F13145 / PIC18F16Q20 CNANO)  v%s" % VERSION)
+        self.title("1.2V SPI-NOR Flash Programmer  (PIC18F16Q20 CNANO)  v%s" % VERSION)
         self.minsize(900, 700)
         self.bridge = None
         self.fw_start = 0
@@ -268,7 +268,7 @@ class App(tk.Tk):
         self.after(300, self._auto_connect)
         self.protocol("WM_DELETE_WINDOW", self._on_close)
         self.log("Programmer GUI v%s. Bridge firmware: not connected yet." % VERSION)
-        self.log("Ready. Board: PIC16F13145 or PIC18F16Q20 Curiosity Nano (USB CDC, 500000 bps).")
+        self.log("Ready. Board: PIC18F16Q20 Curiosity Nano (USB CDC, 500000 bps).")
         self.log("HW: TXS0108E VCCA=1.2V (A side -> flash), VCCB=3.3V (B side -> Nano VTG).")
         self.log("Supported SPI flash (auto detected by JEDEC ID + SFDP):")
         for ln in flashdb.supported_lines():

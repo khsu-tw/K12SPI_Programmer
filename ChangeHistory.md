@@ -2,6 +2,18 @@
 
 版本控管用的變更紀錄（依 PRD.md / PIC18F16Q20_PRD.md / PIC16F13145-CNANO.md 產生）。最新的在最上面。**每個版本標題都要寫修改日期，格式 `yyyy/mm/dd`**（`## vX.Y.Z — yyyy/mm/dd　說明`）。
 
+## v5.2.0 — 2026/10/21　移除 PIC16F13145-CNANO 支援（僅保留 PIC18F16Q20-CNANO）
+
+- 韌體 `firmware/src/main.c`：移除 `BOARD_PIC16F13145` 全部分支（組態位元、UART/ISR、SLEW、腳位初始化），只接受 `-mcpu=18F16Q20`。
+- `firmware/build.bat`、`flash_nano.bat` 不再有 `16f13145` / `all` 參數；`flash_nano.bat` 預設改為 `18f16q20`。
+- 刪除 `firmware/prebuilt/mx25_bridge_pic16f13145.hex`、`PIC16F13145-CNANO.md`、`BD/.$SystemBD.drawio.bkp`，
+  以及 `Hardware/PIC16F13145-Curiosity-Nano-Altium-Project*`（Altium 原廠專案與 zip）。
+  其中的 `LevelTranslator_SOP_Socket.SchDoc`（自訂 LSF0108/TXS0108E 電路）保留，移到 `Hardware/`。
+- GUI 標題/Log/COM 埠提示、`tests/`（模擬器 INFO、HEX 清單）、VS Code tasks、`tools/make_wiring_diagram.py` 與接線圖、
+  README、`docs/HARDWARE|PROTOCOL|USER_GUIDE` 同步移除 16F13145；`DOC/` 內無 16F13145 資料手冊（本就沒有）。
+- 以下舊版本紀錄為歷史，保留原文。
+- 驗證：pytest 55 項通過；`firmwareuild.bat` 以 XC8 3.10 重新編譯成功（Program 10.9%、Data 15.5%），產生的 HEX 與移除前**逐位元組相同**，18F16Q20 韌體行為不變，不需要重新燒錄 Nano。
+
 ## v5.1.5 — 2026/10/21　新增 LSF0108 + SOIC-8 flash 接線圖
 
 - 新增 `docs/wiring_PIC18F16Q20-CNANO_LSF0108_SPIFlash_SOIC8.(png|svg)`，由 `tools/make_wiring_diagram_lsf0108.py` 產生；原 TXS0108E 圖保留不動。
