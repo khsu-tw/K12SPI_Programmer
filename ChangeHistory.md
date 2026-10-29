@@ -2,6 +2,57 @@
 
 版本控管用的變更紀錄（依 PRD.md / PIC18F16Q20_PRD.md / PIC16F13145-CNANO.md 產生）。最新的在最上面。**每個版本標題都要寫修改日期，格式 `yyyy/mm/dd`**（`## vX.Y.Z — yyyy/mm/dd　說明`）。
 
+## v5.4.0 — 2026/10/29　新增 About 視窗；主視窗標題改為「K1V2SPI Programmer vX.Y.Z」
+
+- **Repo 拆分**：`BD/`、`Datasheet/`、`tests/`、`tools/` 移到 private repo `khsu-tw/K12SPI_Programmer_Private`，本 repo 不再追蹤（`.gitignore` 排除，本機檔案保留）。README 已註明。舊 commit 的歷史仍含這些檔案。
+
+- 新增 **About** 按鈕（開在主視窗右側）：程式名稱、GUI 版本、程式更新日期、MCU = Microchip PIC18F16Q20、MCU Firmware 版本（Connect 後由 `INFO` 回覆取得，含板名；未連線顯示 not connected）、設計者 Keynes Hsu、Email keynes.hsu@microchip.com。
+- 主視窗標題由「1.2V SPI-NOR Flash Programmer (PIC18F16Q20 CNANO) vX」改為 **K1V2SPI Programmer v5.4.0**。
+- `gui/mx25s1633_gui.py` 新增常數 `APP_NAME`、`VERSION`、`BUILD_DATE`、`MCU_NAME`、`AUTHOR`、`AUTHOR_EMAIL`。**改版時要同步更新 `VERSION` 與 `BUILD_DATE`**（About 的「Program updated」就是 `BUILD_DATE`，不會自動產生）。
+- 韌體不變（`INFO` 仍回報 5.1.1，不需重燒）。驗證：pytest 76 項通過；實際開啟視窗確認標題與 About 內容。
+
+## v5.3.2 — 2026/10/29　Program count 改為 Pass/Fail/Total 三色顯示；彈出視窗一律開在主視窗右側
+
+- **Program count** 顯示 `Pass`（綠 #0a7a2a）、`Fail`（紅 #c00000）、`Total`（黑），每個數字各自上色；計數檔與 history 不變。
+- **彈出視窗**（Supported SPI Flash、Custom Flash、Config SR、Raw Monitor）新增 `place_right()`：開在主視窗右緣外 8 px、與主視窗頂端對齊，已有其他彈出視窗時依序往下錯開 32 px；螢幕空間不足時貼齊螢幕右緣。視窗先隱藏、定位後才顯示，不會先閃一下再跳位置。
+- Config SR 對話框的 `grab_set()` 改在顯示之後呼叫（隱藏中的視窗 grab 會出錯）。
+- 驗證：pytest 75 項通過；實際開啟視窗確認三個彈出視窗 x 座標在主視窗右側、計數顏色與數字更新。只改 GUI。
+
+## v5.3.1 — 2026/10/29　GUI 版面精簡：清單與 Log 改為按鈕開啟、進度條縮小、Command 按鈕對齊、Program count 移到右上角
+
+- **Supported SPI Flash** 清單改為獨立視窗，由 SPI clock 列右側的「Supported SPI Flash…」按鈕開啟；偵測到的晶片仍反白，視窗內有 Custom Flash… 與 Close。
+- **進度顯示**縮小：階段、訊息、百分比併成單行，進度條改為細條（原本三層、約 100 px 高）。
+- **Commands** 按鈕改為 7 欄等寬網格，移除兩行文字的 Program/Verify（改單行），Stop 放第 2 列右側橫跨兩欄。
+- **Program count**（OK / FAIL / Total、Reset count、Open history）移到視窗右上角。
+- **Log** 預設收合，按 ▶ Show Log 展開、▼ Hide Log 收合；收合時有新錯誤，按鈕顯示「⚠ new error」。收合時視窗高度約 389 px（原本約 900 px 以上）。
+- 「Chip Erase first…」勾選移到 Firmware File 列右側。
+- 只改 GUI 版面，功能、協定與韌體不變。驗證：pytest 75 項通過；實際開啟視窗確認收合/展開、清單視窗、new error 提示。
+
+## v5.3.0 — 2026/10/29　新增 Custom Flash：不改程式即可支援新的 1.2 V SPI flash
+
+- `gui/flashdb.py`：新增 `custom_flash.json` 載入／驗證／儲存（`load_custom`、`entry_to_info`、`save_custom`）。使用者只填 SFDP 沒有的資料：
+  JEDEC ID、廠商/型號、tCE 最大值（1~150 s）、SR1 位元表與遮罩、是否有 SR2、VCC 範圍；容量、頁大小、擦除種類仍由 SFDP 讀取，Density 可選填作交叉檢查。
+- 安全限制：不可覆蓋內建晶片 ID；VCC 範圍必須涵蓋 1.14~1.26 V；tCE 不可超過韌體逾時 150 s；SR bit 0/1（WIP/WEL）不可列；存檔前先驗證，壞檔不會寫出。
+  單筆錯誤只略過該筆並於 Log 顯示。仍須 SFDP 可讀、3 byte 位址、256 B 頁、4 KB 擦除（20h）。
+- `gui/mx25s1633_gui.py`：Supported SPI Flash 清單旁新增 **Custom Flash…** 對話框（新增/修改/刪除、Use detected flash 帶入偵測到的 ID 與容量、Open folder）；自訂項目以藍字與 `*` 標示；儲存後即時重載，不需重開程式。
+- 設定檔位置：exe／腳本旁的 `custom_flash.json` 優先，否則 `%APPDATA%\MX25S1633F_Programmer\custom_flash.json`。
+- 韌體不需更動、不需重燒 Nano；`gui/dist` 內的 exe 需重新打包（`guibuild_exe.bat`）才會有此功能。
+- `docs/USER_GUIDE.md` 新增「自訂 SPI Flash」一節與限制說明。
+- 建置的 EXE 更名為 `K1V2SPI_Programmer.exe`（`gui/build_exe.bat`、README 同步；舊的 `PIC16F_MX25S1633F_Programmer.exe` 已刪除並以新名稱重新打包，含 Custom Flash 功能）。
+- 驗證：pytest 75 項通過（新增 20 項：驗證、往返、壞檔、重複 ID、端到端燒錄模擬）；Tk 對話框煙霧測試可開啟。**未用真實的新晶片實測。**
+
+## v5.2.1 — 2026/10/26　LSF0108 上拉電阻改為 B 側 300 Ω / A 側 82 Ω：更新接線圖並重算 IOL、VOL
+
+- 硬體實際改動：B 側（3.3 V）750 Ω → **300 Ω**；A 側（1.2 V）240 Ω → **82 Ω**，MISO 的 A 側 1 kΩ → **82 Ω**（全部 6 條線相同）。
+- `tools/make_wiring_diagram_lsf0108.py` 與 `docs/wiring_PIC18F16Q20-CNANO_LSF0108_SPIFlash_SOIC8.(png|svg)`：電阻值、算式、標題改為實際值。
+- `docs/HARDWARE.md` 的「上拉電阻」整節重寫。資料手冊依據：PIC18F06/16Q20 DS40002387 D360 的 VOL ≤ 0.6 V **只保證在 IOL = 10 mA**。
+- 重算結果：MCU 腳位拉低（VOL = 0 V）灌電流 3.3/300 + 1.2/82 = 11.0 + 14.6 = **25.6 mA**（原 9.4 mA），**超過 IOL 約 2.6 倍**；
+  VOL = 0.6 V 時仍有 16.3 mA。以 D360 換算的 Ron = 60 Ω 線性模型估計 **VOL ≈ 0.80 V（約 13.3 mA）**，高於 0.6 V 規格，也高於 flash 的 VIL（0.24~0.36 V）。
+  Pass transistor 電流 B 9.8 mA / A 10.4 mA，仍低於 LSF0108 的 15 mA 上限。
+- **風險**：新阻值下 VOL 沒有規格保證，低電位可能被 flash 判成高電位；上升緣變快是優點。**請用示波器量 A 側低電位（SCLK、MOSI、CS#）並跑 Link Test。**
+  只要 B 側 300 Ω 就有 11.0 mA，要回到 IOL 之內需改回 750 Ω / 240 Ω（9.4 mA）。
+- 未實機驗證；VOL 是依資料手冊的估計值。
+
 ## v5.2.0 — 2026/10/21　移除 PIC16F13145-CNANO 支援（僅保留 PIC18F16Q20-CNANO）
 
 - 韌體 `firmware/src/main.c`：移除 `BOARD_PIC16F13145` 全部分支（組態位元、UART/ISR、SLEW、腳位初始化），只接受 `-mcpu=18F16Q20`。

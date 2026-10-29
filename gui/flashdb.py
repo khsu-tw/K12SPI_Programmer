@@ -7,7 +7,11 @@ Supported 1.2 V parts (datasheets in DOC/):
   Winbond   W25Q32NE       EF 65 16   32 Mbit   Vcc 1.14-1.26 V
 The common safe window for all of them is 1.14-1.26 V (VIO_MIN_MV / VIO_MAX_MV in the firmware).
 """
+import json
+import os
+import re
 import struct
+import sys
 
 SFDP_SIGNATURE = b"SFDP"           # 0x50444653 little-endian (JESD216H 6.2.1)
 VIO_MIN_MV = 1140
@@ -57,10 +61,11 @@ class FlashInfo:
     """Static per-part data that SFDP does not (or not reliably) carry."""
 
     def __init__(self, vendor, part, jedec, size, sr_bits, chip_erase_s, sr_mask, voltage, has_sr2,
-                 datasheet=True):
+                 datasheet=True, custom=False):
         self.vendor, self.part, self.jedec = vendor, part, jedec
         self.datasheet = datasheet       # False = entry inferred from a real part, no matching datasheet
-        self.size = size                 # bytes
+        self.custom = custom             # True = user entry from custom_flash.json, not checked against a datasheet
+        self.size = size                 # bytes; None = not given by the user, the SFDP density is used
         self.sr_bits = sr_bits           # writable SR1 bit names for the Config dialog
         self.chip_erase_s = chip_erase_s  # worst-case chip erase from the datasheet (watchdog + progress)
         self.sr_mask = sr_mask           # SR1 bits whose readback must match after WRSR
@@ -83,6 +88,8 @@ KNOWN = {
                                   SR1_W, 70.0, 0xFC, (1.14, 1.26), True),
 }
 
+BUILTIN = frozenset(KNOWN)
+
 # W25Q64NE (DOC/W25Q64NE RevB2) is deliberately NOT supported: it answers 9Fh = EF 6517h exactly like the
 # W25Q65NE and has the same 64 Mbit SFDP density, so the two cannot be told apart. The user chose to keep the
 # W25Q65NE only (2026-10-20). Note a W25Q64NE detected as W25Q65NE would need longer waits than the W25Q65NE
@@ -93,10 +100,166 @@ KNOWN = {
 ALIASES = {}
 
 
+# ---------------------------------------------------------------- user-defined parts (custom_flash.json)
+# Lets a new 1.2 V SPI-NOR be supported without touching the code. Everything SFDP already reports (density, page,
+# erase types, address mode) is read from the chip; the file only carries what SFDP cannot: the JEDEC ID, names,
+# worst-case chip erase time and the SR1 layout. The firmware limits stay: 3-byte address, 256 B page, 4 KB erase
+# (20h), chip erase <= CE_MAX_S, IO window VIO_MIN_MV..VIO_MAX_MV.
+CUSTOM_FILE = "custom_flash.json"
+CE_MAX_S = 150                  # firmware CE timeout is 150000 ms (main.c)
+SR_FIXED_BITS = {0, 1}          # WIP / WEL are read-only status bits, never offered as writable
+
+
+def custom_path(user_dir):
+    """custom_flash.json next to the program (exe or script) if it exists there, else in `user_dir`."""
+    here = os.path.dirname(sys.executable if getattr(sys, "frozen", False) else os.path.abspath(__file__))
+    beside = os.path.join(here, CUSTOM_FILE)
+    return beside if os.path.isfile(beside) else os.path.join(user_dir, CUSTOM_FILE)
+
+
+def parse_jedec(text):
+    h = re.sub(r"[\s,]|0x", "", str(text), flags=re.I)
+    if not re.fullmatch(r"[0-9A-Fa-f]{6}", h):
+        raise ValueError("JEDEC ID must be 3 hex bytes, e.g. EF 65 18")
+    jid = tuple(bytes.fromhex(h))
+    if jid in ((0, 0, 0), (0xFF, 0xFF, 0xFF)):
+        raise ValueError("JEDEC ID 00 00 00 / FF FF FF means 'no response'")
+    return jid
+
+
+def _num(d, key, lo, hi, default=None, as_int=False):
+    v = d.get(key, default)
+    if v is None or v == "":
+        raise ValueError("%s is required" % key)
+    try:
+        v = int(str(v), 0) if as_int else float(v)
+    except (TypeError, ValueError):
+        raise ValueError("%s is not a number: %r" % (key, v))
+    if not lo <= v <= hi:
+        raise ValueError("%s must be %s..%s (got %s)" % (key, lo, hi, v))
+    return v
+
+
+def entry_to_info(d):
+    """Validate one custom_flash.json entry and build its FlashInfo. Raises ValueError with a readable reason."""
+    if not isinstance(d, dict):
+        raise ValueError("entry is not an object")
+    vendor, part = str(d.get("vendor", "")).strip(), str(d.get("part", "")).strip()
+    if not vendor or not part:
+        raise ValueError("vendor and part are required")
+    jid = parse_jedec(d.get("jedec", ""))
+    if jid in BUILTIN or jid in ALIASES:
+        raise ValueError("JEDEC ID %02X %02X %02X belongs to a built-in part and cannot be redefined" % jid)
+    size = None
+    if d.get("size_mbit") not in (None, ""):
+        size = _num(d, "size_mbit", 1, 1 << 14, as_int=True) * (1 << 20) // 8
+    ce = _num(d, "chip_erase_s", 1, CE_MAX_S)
+    vmin = _num(d, "vcc_min", 0.5, 5.0, default=1.14)
+    vmax = _num(d, "vcc_max", 0.5, 5.0, default=1.26)
+    if vmin > VIO_MIN_MV / 1000.0 or vmax < VIO_MAX_MV / 1000.0:
+        raise ValueError("VCC %.2f-%.2f V does not cover the %.2f-%.2f V the bridge drives; refusing to over-volt it"
+                         % (vmin, vmax, VIO_MIN_MV / 1000.0, VIO_MAX_MV / 1000.0))
+    bits = d.get("sr_bits")
+    if bits is None:
+        bits = {"BP2": 4, "BP1": 3, "BP0": 2}            # BP2..BP0 sit at the same place on every SPI-NOR
+    if not isinstance(bits, dict) or not bits:
+        raise ValueError('sr_bits must be an object like {"BP2": 4, "BP1": 3, "BP0": 2}')
+    sr_bits = []
+    for name, bit in bits.items():
+        if not isinstance(bit, int) or isinstance(bit, bool) or not 0 <= bit <= 7:
+            raise ValueError("SR bit %s: bit number must be 0..7" % name)
+        if bit in SR_FIXED_BITS:
+            raise ValueError("SR bit %s: bits 0 (WIP) and 1 (WEL) are read-only status bits" % name)
+        sr_bits.append((str(name), bit))
+    if len({b for _, b in sr_bits}) != len(sr_bits):
+        raise ValueError("two SR names use the same bit")
+    sr_bits.sort(key=lambda nb: -nb[1])
+    mask = _num(d, "sr_mask", 0, 255, default=sum(1 << b for _, b in sr_bits), as_int=True)
+    return FlashInfo(vendor, part, jid, size, sr_bits, ce, int(mask), (vmin, vmax),
+                     bool(d.get("has_sr2", False)), datasheet=False, custom=True)
+
+
+def read_custom_raw(path):
+    """The entries of the file as plain dicts ([] if the file does not exist). Raises ValueError if unreadable."""
+    if not os.path.isfile(path):
+        return []
+    try:
+        with open(path, encoding="utf-8") as f:
+            doc = json.load(f)
+    except (OSError, ValueError) as e:
+        raise ValueError("%s: %s" % (path, e))
+    items = doc.get("flashes") if isinstance(doc, dict) else doc
+    if not isinstance(items, list):
+        raise ValueError('%s: expected {"flashes": [ ... ]}' % path)
+    return items
+
+
+def load_custom(path):
+    """(Re)load user parts into KNOWN, replacing the previous custom ones. Returns (loaded, errors); a bad entry
+    is skipped and reported, it never stops the others or the program."""
+    for k in [k for k, v in KNOWN.items() if v.custom]:
+        del KNOWN[k]
+    loaded, errors = [], []
+    try:
+        items = read_custom_raw(path)
+    except ValueError as e:
+        return loaded, [str(e)]
+    for n, d in enumerate(items, 1):
+        try:
+            info = entry_to_info(d)
+            if info.jedec in KNOWN:
+                raise ValueError("JEDEC ID %02X %02X %02X is defined twice" % info.jedec)
+            KNOWN[info.jedec] = info
+            loaded.append(info)
+        except ValueError as e:
+            errors.append("%s entry %d: %s" % (os.path.basename(path), n, e))
+    return loaded, errors
+
+
+def save_custom(path, items):
+    """Write `items` (list of entry dicts). Every entry is validated first so a broken file is never produced."""
+    seen = set()
+    for n, d in enumerate(items, 1):
+        try:
+            info = entry_to_info(d)
+            if info.jedec in seen:
+                raise ValueError("JEDEC ID %02X %02X %02X is defined twice" % info.jedec)
+            seen.add(info.jedec)
+        except ValueError as e:
+            raise ValueError("entry %d: %s" % (n, e))
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump({"flashes": items}, f, indent=2, ensure_ascii=False)
+    os.replace(tmp, path)
+
+
+def parse_sr_text(text):
+    """'BP2=4, BP1=3, BP0=2' -> {'BP2': 4, ...} (the dialog's text form of sr_bits)."""
+    out = {}
+    for part in re.split(r"[,;\s]+", text.strip()):
+        if not part:
+            continue
+        name, sep, bit = part.partition("=")
+        if not sep or not name or not bit.strip().isdigit():
+            raise ValueError("SR bits: use NAME=bit, e.g. BP2=4, BP1=3, BP0=2 (got %r)" % part)
+        out[name] = int(bit)
+    return out
+
+
+def sr_text(bits):
+    return ", ".join("%s=%d" % nb for nb in bits.items()) if isinstance(bits, dict) else ""
+
+
+def density_text(info):
+    return "%d Mbit" % (info.size * 8 >> 20) if info.size else "per SFDP"
+
+
 def supported_lines():
     """One line per supported part, for the GUI's Supported Flash list."""
-    return ["%-10s %-11s %02X %02X %02X  %3d Mbit  %.2f-%.2f V" %
-            ((i.vendor, i.part) + i.jedec + (i.size * 8 >> 20,) + i.voltage) for i in KNOWN.values()]
+    return ["%-10s %-11s %02X %02X %02X  %-8s  %.2f-%.2f V%s" %
+            ((i.vendor, i.part) + i.jedec + (density_text(i),) + i.voltage + (" (custom)" if i.custom else "",))
+            for i in KNOWN.values()]
 
 
 class SfdpError(Exception):
@@ -236,7 +399,7 @@ def identify(jedec, sfdp=None):
         "info": info,
         "sfdp": sfdp,
         "name": info.name if info else (generic_name(key, sfdp) if sfdp else "Unknown %02X %02X %02X" % key),
-        "size": (sfdp or {}).get("size") or (info.size if info else 0),
+        "size": (sfdp or {}).get("size") or ((info.size or 0) if info else 0),
         "page": (sfdp or {}).get("page_size") or 256,
         "erase_sizes": sorted({sz for sz, op in (sfdp or {}).get("erase_types", [])}),
         "blockers": [],
@@ -245,7 +408,8 @@ def identify(jedec, sfdp=None):
     res["sfdp_lines"] = describe_sfdp(sfdp) if sfdp else []
     if info is None:
         res["blockers"].append("ID %02X %02X %02X is not in the supported list (%s); shown from SFDP only, "
-                               "program/erase disabled" % (key + (", ".join(i.part for i in KNOWN.values()),)))
+                               "program/erase disabled (add it with the Custom Flash button)" %
+                               (key + (", ".join(i.part for i in KNOWN.values()),)))
     if sfdp is None:
         res["blockers"].append("SFDP not readable (JESD216 SFDP is required to identify the device)")
         return res
@@ -255,7 +419,11 @@ def identify(jedec, sfdp=None):
     if info and key in ALIASES:
         res["warnings"].append("ID %02X %02X %02X is not the datasheet value (%02X %02X %02X) but SFDP is checked" %
                                (key + ALIASES[key]))
-    if info and sfdp.get("size") != info.size:
+    if info and info.custom:
+        res["warnings"].append("%s is a user-defined entry (custom_flash.json): chip erase %.0f s and SR mask 0x%02X "
+                               "come from the user, not from a datasheet check" %
+                               (info.part, info.chip_erase_s, info.sr_mask))
+    if info and info.size and sfdp.get("size") != info.size:
         res["blockers"].append("SFDP density %d KB does not match %s (%d KB): wrong ID or bad link" %
                                (sfdp["size"] // 1024, info.name, info.size // 1024))
     if sfdp.get("addr_bytes") == "4":

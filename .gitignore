@@ -1,3 +1,9 @@
 .pytest_cache/
 __pycache__/
 *.pyc
+
+# kept in the private repo khsu-tw/K12SPI_Programmer_Private (copy next to gui/ to build, test, regenerate docs)
+/BD/
+/Datasheet/
+/tests/
+/tools/

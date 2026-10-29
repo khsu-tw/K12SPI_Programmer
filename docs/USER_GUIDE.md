@@ -5,14 +5,17 @@
 | 區塊 | 內容 |
 |---|---|
 | 版本列 | 顯示 `Programmer GUI v… \| Bridge: <板名> firmware <版本>`；啟動時韌體顯示 not connected，Connect 後更新。Log 也會記錄這兩個版本 |
-| Supported SPI Flash | 獨立清單：廠牌、型號、JEDEC ID、容量、VCC；Auto Detect 偵測到的晶片該列反白 |
+| Program count | 視窗右上角：累計燒錄 **Pass（綠）/ Fail（紅）/ Total（黑）**，存於 `%APPDATA%\MX25S1633F_Programmer\stats.json`；每次燒錄另記在 `program_history.csv`（時間、結果、檔名、CRC、秒數、失敗原因）；Reset count 歸零、Open history 開啟 |
+| Supported SPI Flash… | 「SPI clock」列右側的按鈕，點選開啟獨立視窗：廠牌、型號、JEDEC ID、容量、VCC；Auto Detect 偵測到的晶片該列反白 |
+| Custom Flash… | 在 Supported SPI Flash 視窗內，新增／修改／刪除自訂 SPI flash，見下方「自訂 SPI Flash」。自訂項目以藍字、型號後加 `*` 顯示 |
 | 上方列 | COM 埠（自動找 Curiosity Virtual COM Port，兩種 Nano 都可）、Connect、Raw Monitor；第二列：SPI clock、Pin drive、WP# High |
 | Firmware File | 📂 Load File… 載入 .bin / .hex，顯示大小、位址範圍、CRC32 |
-| Commands | 圖示按鈕 + Stop（見下表） |
-| 進度 | 進度條右側顯示 0~100%；狀態列顯示目前階段（抹除/燒錄/驗證）與該階段百分比 |
-| 計數 | 進度下方顯示累計燒錄 OK / FAIL 次數，存於 `%APPDATA%\MX25S1633F_Programmer\stats.json`；每次燒錄另記在 `program_history.csv`（時間、結果、檔名、CRC、秒數、失敗原因）；可按 Reset count 歸零、Open history 開啟 |
-| 參數列 | Address (hex)、Length (hex)、Verify after program、Double-check Read->File（用板上 CRC32 再確認讀出資料）、狀態/進度條 |
-| Log | 所有指令與回應 |
+| Commands | 圖示按鈕，7 欄等寬對齊：第 1 列 Auto Detect～Reset，第 2 列 Sector Erase～Read->File 與 Stop（見下表） |
+| About | 「SPI clock」列最右側的按鈕：程式名稱、GUI 版本、程式更新日期、MCU（Microchip PIC18F16Q20）、MCU Firmware 版本（Connect 後由 `INFO` 讀取，未連線顯示 not connected）、設計者與 Email |
+| 彈出視窗 | Supported SPI Flash、Custom Flash、Config SR、Raw Monitor、About 都開在主視窗右側（多個同時開時依序往下錯開；螢幕太窄時貼齊螢幕右緣） |
+| 參數列 | Address (hex)、Length (hex)、Verify after program、Double-check Read->File（用板上 CRC32 再確認讀出資料） |
+| 進度 | 單行狀態：目前階段（抹除/燒錄/驗證）、訊息與右側 0~100%，下方是細進度條 |
+| Log | 預設收合，按 **▶ Show Log** 展開、**▼ Hide Log** 收合。收合時若出現錯誤，按鈕會顯示「⚠ new error」；內容照常累積，展開即可看到全部 |
 
 | 按鈕 | 動作 | 會用到的參數 |
 |---|---|---|
@@ -110,7 +113,42 @@ SR1（05h）的位元定義**三家不同**，GUI 依偵測到的晶片自動切
 | ID 偶爾錯誤 | 按 Link Test、SPI clock 選 Slow、Pin drive 選 Slow edge、縮短杜邦線、補 0.1µF 電容 |
 | Erase/Program 失敗 | BP 位元保護中 → Config SR 把 BP 清 0 |
 | WRSR 失敗 | SRWD / SRP0 / SRP=1 且 WP# 為低 → 勾 WP# High；GD25UF16E SRP1=1、Winbond SRL=1 → 斷電重上電 |
-| `Blocked: ID xx xx xx is not in the supported list` | 晶片不在支援清單：Log 會依 SFDP 列出規格，只能讀取。要燒錄請提供資料手冊加入支援 |
+| `Blocked: ID xx xx xx is not in the supported list` | 晶片不在支援清單：Log 會依 SFDP 列出規格，只能讀取。要燒錄請按 **Custom Flash…** 加入（見下方「自訂 SPI Flash」），不必改程式 |
 | `Blocked: SFDP density ... does not match` | ID 與 SFDP 容量不符：多半是晶片型號與預期不同（例如收到 W25Q32NE 而不是 W25Q65NE），請看晶片頂面印字 |
 | `ERR:vio` / `IO voltage ... OUT OF RANGE` | VSENSE 量到的 1.2 V 軌不在 1.14–1.26 V，韌體拒絕寫入/抹除。用電表確認 1.2 V 電源 |
 | Verify MISMATCH | 燒錄前沒有抹除該區域，或 SPI 速度太快 |
+
+## 自訂 SPI Flash（不改程式支援新的 1.2 V 晶片）
+
+晶片不在清單時，Log 會顯示「Blocked: ... not in the supported list」。按 **Custom Flash…** 填寫參數即可，不需要改程式或重新打包 exe，也不需要重燒 Nano。
+
+容量、頁大小、擦除種類、位址模式一律由晶片的 SFDP 自動讀取，只需填 SFDP 沒有的資料：
+
+| 欄位 | 必填 | 說明 |
+|---|---|---|
+| Vendor / Part | 是 | 顯示名稱 |
+| JEDEC ID | 是 | 9Fh 回傳的 3 bytes，如 `EF 65 18`。不可與內建晶片相同 |
+| Chip erase max (s) | 是 | 資料手冊 tCE 最大值，1~150 秒。用於逾時與進度條；填太小會在抹除完成前逾時 |
+| Density (Mbit) | 否 | 填了會與 SFDP 容量比對，不符就禁止燒錄（防止 ID 對錯料） |
+| SR1 writable bits | 否 | Config SR 對話框的位元，格式 `NAME=bit`，預設 `BP2=4, BP1=3, BP0=2`。bit 0/1（WIP/WEL）不可列 |
+| SR1 readback mask | 否 | WRSR 後要比對的位元，空白 = 上面列出的全部位元 |
+| VCC min-max | 否 | 必須涵蓋 1.14~1.26 V，否則拒絕儲存（避免對低壓晶片過壓） |
+| Has Status Register 2 | 否 | Winbond / GigaDevice 型：WRSR 要連 SR2 一起寫回，否則 SR2 會被清掉 |
+
+操作：先接上晶片按 Auto Detect（會顯示 SFDP 資料）→ Custom Flash… → **Use detected flash** 帶入 ID 與容量 → 依資料手冊補上 Chip erase 等欄位 → **Save / Update** → 再按 Auto Detect。
+
+- 設定存在 `custom_flash.json`：若 exe／腳本旁邊有這個檔就用它（方便隨 exe 發給別人），否則用 `%APPDATA%\MX25S1633F_Programmer\custom_flash.json`。Open folder 可開啟所在資料夾，也可直接編輯 JSON。
+- 格式範例：
+
+```
+{"flashes": [
+  {"vendor": "Acme", "part": "AC25U128", "jedec": "EF 65 18", "chip_erase_s": 90,
+   "has_sr2": true, "size_mbit": 128, "vcc_min": 1.14, "vcc_max": 1.26,
+   "sr_bits": {"SRP": 7, "BP2": 4, "BP1": 3, "BP0": 2}}
+]}
+```
+
+- 某一筆填錯只會略過該筆並在 Log 顯示原因，不影響其他晶片。
+- 自訂晶片偵測時會顯示警告：抹除時間與 SR 遮罩是使用者提供的，程式沒有用資料手冊核對。**第一次請先用不重要的資料測試**，並確認 tCE 沒有填小。
+
+**仍然做不到（寫死在韌體）**：只支援 3 byte 位址（容量 ≤ 128 Mbit）、256 B 頁、4 KB 擦除（20h）、tCE ≤ 150 秒、IO 電壓窗 1.14~1.26 V、標準 JEDEC 指令集；沒有 SFDP 的晶片也不能燒錄。超出這些限制要改 `firmware/src/main.c`。

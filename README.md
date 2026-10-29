@@ -36,19 +36,21 @@ PC 端 GUI 可讀 ID、抹除、燒錄、驗證、讀出存檔、Link Test，並
 │  ├─ mx25s1633_gui.py, hexfile.py GUI 原始碼
 │  ├─ flashdb.py                   支援晶片表、JESD216H SFDP 解析
 │  ├─ build_exe.bat                打包成免安裝 .exe
-│  └─ dist/PIC16F_MX25S1633F_Programmer.exe
-├─ tests/                          pytest（HEX 解析、SFDP 解析、模擬韌體通訊）
-├─ tools/                          py.cmd / py.sh、make_wiring_diagram.py、md2html.py
+│  └─ dist/K1V2SPI_Programmer.exe
+├─ tests/ *                        pytest（HEX 解析、SFDP 解析、模擬韌體通訊）
+├─ tools/ *                        py.cmd / py.sh、make_wiring_diagram.py、md2html.py
 ├─ docs/                           HARDWARE / PROTOCOL / USER_GUIDE / SFDP_MAPPING（.md 與 .html）、接線圖
 └─ setup_env.bat / setup_env.sh    建立 Python 環境
 ```
+
+\* `BD/`、`Datasheet/`、`tests/`、`tools/` 不在本公開 repo 內（已加入 `.gitignore`），放在 private repo `khsu-tw/K12SPI_Programmer_Private`。需要建置、測試或重新產生文件時，把它們複製到本目錄同一層。
 
 **文件規則**：README、`docs/` 下的文件與 ChangeHistory 都以 `.md` 為原始檔，每次修改後產生同名 `.html` 作為正式紀錄：
 `tools\py.cmd tools\md2html.py`。請改 `.md`，不要直接改 `.html`（會被覆蓋）。
 
 ## 快速開始
 
-1. **只要用 GUI**：直接執行 `gui\dist\PIC16F_MX25S1633F_Programmer.exe`（免安裝，不需要 Python）。
+1. **只要用 GUI**：直接執行 `gui\dist\K1V2SPI_Programmer.exe`（免安裝，不需要 Python）。
 2. **燒韌體到 Nano**（第一次使用）：USB-C 接上 Nano，執行
    `firmware\flash_nano.bat`（PIC18F16Q20-CNANO）
    （以 MPLAB X v6.30 的 IPE 經板載 nEDBG 燒錄，並回讀比對；最後一行 `Programmed and verified` 才算成功。

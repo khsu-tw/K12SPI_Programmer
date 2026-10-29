@@ -53,12 +53,12 @@ PrefsRevisionGUID=
 
 [Document1]
 DocumentPath=PIC18F16Q20_Curiosity_Nano_TopLevel.SchDoc
-AnnotationEnabled=1
+AnnotationEnabled=0
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=0
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -70,12 +70,12 @@ DocumentUniqueId=RCANPVKZ
 
 [Document2]
 DocumentPath=PIC18F16Q20_Curiosity_Nano_Target_MCU.SchDoc
-AnnotationEnabled=1
+AnnotationEnabled=0
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=1
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -155,12 +155,12 @@ DocumentUniqueId=
 
 [Document7]
 DocumentPath=PIC18F16Q20_Curiosity_Nano_Debugger.SchDoc
-AnnotationEnabled=1
+AnnotationEnabled=0
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=2
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -172,12 +172,12 @@ DocumentUniqueId=NSXODZCY
 
 [Document8]
 DocumentPath=PIC18F16Q20_Curiosity_Nano_Revision_History.SchDoc
-AnnotationEnabled=1
+AnnotationEnabled=0
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=3
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -194,7 +194,7 @@ AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=4
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -209,9 +209,12 @@ UniqueId=853BB09B-1C0F-4BF9-ABC8-0F2A7901F26B
 Description=Default Assembly
 AllowFabrication=1
 ParameterCount=0
-VariationCount=2
+VariationCount=5
 Variation1=Designator=J107|UniqueId=\HIESQJUU\LAKFOKEC|Kind=1|AlternatePart=
 Variation2=Designator=J108|UniqueId=\HIESQJUU\GRSSTJMD|Kind=1|AlternatePart=
+Variation3=Designator=R1|UniqueId=\OLVZERXG\ITQNCTLH|Kind=1|AlternatePart=
+Variation4=Designator=R?|UniqueId=\OLVZERXG\JOUVZWJO|Kind=1|AlternatePart=
+Variation5=Designator=R?|UniqueId=\OLVZERXG\MTFNLADK|Kind=1|AlternatePart=
 ParamVariationCount=0
 
 [Parameter1]
