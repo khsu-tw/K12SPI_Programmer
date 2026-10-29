@@ -11,7 +11,7 @@
 | 上方列 | COM 埠（自動找 Curiosity Virtual COM Port，兩種 Nano 都可）、Connect、Raw Monitor；第二列：SPI clock、Pin drive、WP# High |
 | Firmware File | 📂 Load File… 載入 .bin / .hex，顯示大小、位址範圍、CRC32 |
 | Commands | 圖示按鈕，7 欄等寬對齊：第 1 列 Auto Detect～Reset，第 2 列 Sector Erase～Read->File 與 Stop（見下表） |
-| About | 「SPI clock」列最右側的按鈕：程式名稱、GUI 版本、程式更新日期、MCU（Microchip PIC18F16Q20）、MCU Firmware 版本（Connect 後由 `INFO` 讀取，未連線顯示 not connected）、設計者與 Email |
+| About | 「SPI clock」列最右側的按鈕：程式名稱、GUI 版本、程式更新日期、MCU（Microchip PIC18F16Q20）、MCU Firmware 版本（Connect 後由 `INFO` 讀取，未連線顯示 not connected）、設計者、Email、GitHub 網址（短網址 `github.com/khsu-tw/K12SPI_Programmer`，點一下用瀏覽器開啟） |
 | 彈出視窗 | Supported SPI Flash、Custom Flash、Config SR、Raw Monitor、About 都開在主視窗右側（多個同時開時依序往下錯開；螢幕太窄時貼齊螢幕右緣） |
 | 參數列 | Address (hex)、Length (hex)、Verify after program、Double-check Read->File（用板上 CRC32 再確認讀出資料） |
 | 進度 | 單行狀態：目前階段（抹除/燒錄/驗證）、訊息與右側 0~100%，下方是細進度條 |

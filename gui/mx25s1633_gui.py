@@ -11,6 +11,7 @@ import os
 import queue
 import sys
 import threading
+import webbrowser
 import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
@@ -23,7 +24,9 @@ import flashdb  # noqa: E402
 import hexfile  # noqa: E402
 
 APP_NAME = "K1V2SPI Programmer"
-VERSION = "5.4.0"
+VERSION = "5.4.1"
+GITHUB_URL = "https://github.com/khsu-tw/K12SPI_Programmer"
+GITHUB_SHORT = "github.com/khsu-tw/K12SPI_Programmer"
 BUILD_DATE = "2026-10-29"           # program update date: change together with VERSION and ChangeHistory.md
 MCU_NAME = "Microchip PIC18F16Q20"
 AUTHOR = "Keynes Hsu"
@@ -463,6 +466,7 @@ class App(tk.Tk):
             ("MCU firmware version", fw),
             ("Designer", AUTHOR),
             ("Email", AUTHOR_EMAIL),
+            ("GitHub", GITHUB_SHORT),
         ]
 
     def open_about(self):
@@ -480,6 +484,11 @@ class App(tk.Tk):
         for r, (k, v) in enumerate(self.about_lines(), start=2):
             ttk.Label(win, text=k + ":", font=("Segoe UI", 10, "bold")).grid(row=r, column=0, sticky="nw",
                                                                            padx=(14, 8), pady=1)
+            if k == "GitHub":                 # clickable: opens the repository in the default browser
+                lb = tk.Label(win, text=v, fg="#0b5cad", cursor="hand2", font=("Segoe UI", 9, "underline"))
+                lb.bind("<Button-1>", lambda e: webbrowser.open(GITHUB_URL))
+                lb.grid(row=r, column=1, sticky="w", padx=(0, 14), pady=1)
+                continue
             ttk.Label(win, text=v).grid(row=r, column=1, sticky="w", padx=(0, 14), pady=1)
         ttk.Button(win, text="Close", command=win.destroy).grid(row=20, column=0, columnspan=2, pady=12)
         self.place_right(win)

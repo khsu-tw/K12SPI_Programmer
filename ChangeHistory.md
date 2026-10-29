@@ -2,6 +2,11 @@
 
 版本控管用的變更紀錄（依 PRD.md / PIC18F16Q20_PRD.md / PIC16F13145-CNANO.md 產生）。最新的在最上面。**每個版本標題都要寫修改日期，格式 `yyyy/mm/dd`**（`## vX.Y.Z — yyyy/mm/dd　說明`）。
 
+## v5.4.1 — 2026/10/29　About 加入 GitHub 短網址（可點擊）；repo 公開
+
+- About 視窗新增 GitHub 列：顯示 `github.com/khsu-tw/K12SPI_Programmer`，點擊用預設瀏覽器開啟 https://github.com/khsu-tw/K12SPI_Programmer。
+- repo 改為 public；公開前已重寫 git 歷史，移除 `BD/`、`DOC/`、`Datasheet/`、`tests/`、`tools/`（這些在 private repo `khsu-tw/K12SPI_Programmer_Private`）。
+
 ## v5.4.0 — 2026/10/29　新增 About 視窗；主視窗標題改為「K1V2SPI Programmer vX.Y.Z」
 
 - **Repo 拆分**：`BD/`、`Datasheet/`、`tests/`、`tools/` 移到 private repo `khsu-tw/K12SPI_Programmer_Private`，本 repo 不再追蹤（`.gitignore` 排除，本機檔案保留）。README 已註明。舊 commit 的歷史仍含這些檔案。
