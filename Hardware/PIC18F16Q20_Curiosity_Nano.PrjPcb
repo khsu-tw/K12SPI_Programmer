@@ -45,7 +45,7 @@ CrossRefPorts=3
 CrossRefCrossSheets=1
 CrossRefSheetEntries=0
 CrossRefFollowFromMainSettings=1
-CurrentVariant=Default Assembly
+CurrentVariant=V1.0
 
 [Preferences]
 PrefsVaultGUID=
@@ -137,23 +137,6 @@ GenerateClassCluster=0
 DocumentUniqueId=YVLBUAPH
 
 [Document6]
-DocumentPath=PIC18F16Q20_Curiosity_Nano.OutJob
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotationIndexControlEnabled=0
-AnnotateSuffix=
-AnnotateScope=All
-AnnotateOrder=-1
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
-ClassGenCCAutoEnabled=1
-ClassGenCCAutoRoomEnabled=1
-ClassGenNCAutoScope=None
-DItemRevisionGUID=
-GenerateClassCluster=0
-DocumentUniqueId=
-
-[Document7]
 DocumentPath=PIC18F16Q20_Curiosity_Nano_Debugger.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -170,7 +153,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=NSXODZCY
 
-[Document8]
+[Document7]
 DocumentPath=LevelTranslator_SOP_Socket.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -187,7 +170,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=HVQHWWYJ
 
-[Document9]
+[Document8]
 DocumentPath=PIC18F16Q20_Curiosity_Nano_Revision_History.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -204,62 +187,102 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=FRTXMEIS
 
+[Document9]
+DocumentPath=PIC18F16Q20_Curiosity_Nano.OutJob
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=0
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=
+
+[Document10]
+DocumentPath=PIC18F16Q20_Curiosity_Nano.BomDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=0
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=
+
 [ProjectVariant1]
 UniqueId=853BB09B-1C0F-4BF9-ABC8-0F2A7901F26B
 Description=Default Assembly
 AllowFabrication=1
 ParameterCount=0
-VariationCount=5
-Variation1=Designator=J107|UniqueId=\HIESQJUU\LAKFOKEC|Kind=1|AlternatePart=
-Variation2=Designator=J108|UniqueId=\HIESQJUU\GRSSTJMD|Kind=1|AlternatePart=
-Variation3=Designator=R1|UniqueId=\OLVZERXG\ITQNCTLH|Kind=1|AlternatePart=
-Variation4=Designator=R?|UniqueId=\OLVZERXG\JOUVZWJO|Kind=1|AlternatePart=
-Variation5=Designator=R?|UniqueId=\OLVZERXG\MTFNLADK|Kind=1|AlternatePart=
+VariationCount=0
+ParamVariationCount=0
+
+[ProjectVariant2]
+UniqueId=df0cd94c-3159-4f72-95b7-ad7ad68180e9
+Description=V1.0
+AllowFabrication=0
+ParameterCount=0
+VariationCount=3
+Variation1=Designator=R1|UniqueId=\WBCNXWTO\ITQNCTLH|Kind=1|AlternatePart=
+Variation2=Designator=R3|UniqueId=\WBCNXWTO\JOUVZWJO|Kind=1|AlternatePart=
+Variation3=Designator=R19|UniqueId=\WBCNXWTO\MTFNLADK|Kind=1|AlternatePart=
 ParamVariationCount=0
 
 [Parameter1]
-Name=ProjectTitle
-Value=PIC18F16Q20 Curiosity Nano
+Name=CNANO_Template_Revision
+Value=2.3
 
 [Parameter2]
-Name=ProjectTargetName
-Value=PIC18F16Q20
+Name=ProjectContactOwner
+Value=ST
 
 [Parameter3]
-Name=ProjectPCBFabRevision
-Value=3
+Name=ProjectContactPCB
+Value=TF
 
 [Parameter4]
-Name=ProjectPCBFabNumber
-Value=04-11563
+Name=ProjectContactPCBEmail
+Value=terje.frostad@microchip.com
 
 [Parameter5]
-Name=ProjectPCBAssyRevision
-Value=3
+Name=ProjectPartNumber
+Value=EV73T25A
 
 [Parameter6]
 Name=ProjectPCBAssyNumber
 Value=02-00457
 
 [Parameter7]
-Name=ProjectPartNumber
-Value=EV73T25A
+Name=ProjectPCBAssyRevision
+Value=3
 
 [Parameter8]
-Name=ProjectContactPCBEmail
-Value=terje.frostad@microchip.com
+Name=ProjectPCBFabNumber
+Value=04-11563
 
 [Parameter9]
-Name=ProjectContactPCB
-Value=TF
+Name=ProjectPCBFabRevision
+Value=3
 
 [Parameter10]
-Name=ProjectContactOwner
-Value=ST
+Name=ProjectTargetName
+Value=PIC18F16Q20
 
 [Parameter11]
-Name=CNANO_Template_Revision
-Value=2.3
+Name=ProjectTitle
+Value=PIC18F16Q20 Curiosity Nano
 
 [Configuration1]
 Name=Default Configuration
@@ -303,8 +326,8 @@ SCH_ShowNoteCollapsed=-1
 Wir_PrintColor=0
 Ldr_PrintColor=0
 Esd_PrintColor=0
-SCH_ExpandLogicalToPhysical=0
-SCH_VariantName=Default Assembly
+SCH_ExpandLogicalToPhysical=-1
+SCH_VariantName=V1.0
 SCH_ExpandComponentDesignators=-1
 SCH_ExpandNetlabels=0
 SCH_ExpandPorts=0
