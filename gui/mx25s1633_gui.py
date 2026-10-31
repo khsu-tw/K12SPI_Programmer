@@ -42,7 +42,24 @@ SPEEDS = [("Max", 0), ("Fast", 1), ("Normal", 2), ("Slow", 8), ("Slower", 20), (
 # (label, SLEW value): 0 = fastest edges, 1 = slew-rate limited
 DRIVES = [("Slow edge", 1), ("Fast edge", 0)]   # slew-limited first: TXS0108E rings with fast edges
 
-STATS_DIR = os.path.join(os.environ.get("APPDATA") or os.path.expanduser("~"), "MX25S1633F_Programmer")
+IS_WIN = sys.platform.startswith("win")
+# Same look on both platforms: Segoe UI / Consolas on Windows, DejaVu (bundled with Ubuntu) on Linux
+UI_FONT = "Segoe UI" if IS_WIN else "DejaVu Sans"
+MONO_FONT = "Consolas" if IS_WIN else "DejaVu Sans Mono"
+if IS_WIN:
+    STATS_DIR = os.path.join(os.environ.get("APPDATA") or os.path.expanduser("~"), "MX25S1633F_Programmer")
+else:
+    STATS_DIR = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"),
+                             "MX25S1633F_Programmer")
+
+
+def open_path(path):
+    """Open a file or folder with the desktop default application."""
+    if IS_WIN:
+        os.startfile(path)
+    else:
+        import subprocess
+        subprocess.Popen(["xdg-open", path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 VERIFY_CHUNK = 0x10000      # verify in 64KB pieces: gives percent progress and locates mismatches
 # rough datasheet times (s), used only to weight the progress bar
 T_SE, T_BE32, T_BE64, T_PAGE, T_VERIFY_BYTE = 0.24, 1.5, 3.0, 0.0055, 6e-6
@@ -263,6 +280,8 @@ class Bridge:
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
+        if not IS_WIN:
+            ttk.Style(self).theme_use("clam")      # closest to the Windows look; Tk's default theme is dated
         self.title("%s v%s" % (APP_NAME, VERSION))
         self.minsize(940, 150)
         self.bridge = None
@@ -298,7 +317,7 @@ class App(tk.Tk):
 
     # ------------------------------------------------------------- layout
     def _build(self):
-        bold = ("Segoe UI", 10, "bold")
+        bold = (UI_FONT, 10, "bold")
         top = ttk.Frame(self, padding=(4, 4, 4, 0))
         top.pack(fill="x")
         top.columnconfigure(6, weight=1)
@@ -316,7 +335,7 @@ class App(tk.Tk):
         self.chip_lbl.grid(row=1, column=0, columnspan=4, sticky="w", pady=(4, 0))
         self.vio_lbl = tk.Label(top, text="IO voltage: --", fg="#666", font=bold)
         self.vio_lbl.grid(row=1, column=4, columnspan=2, sticky="w", pady=(4, 0))
-        self.ver_lbl = tk.Label(top, text=self.version_text(None), fg="#333", font=("Segoe UI", 10))
+        self.ver_lbl = tk.Label(top, text=self.version_text(None), fg="#333", font=(UI_FONT, 10))
         self.ver_lbl.grid(row=2, column=0, columnspan=6, sticky="w", pady=(2, 0))
         # program count: top right corner of the window
         sc = ttk.Frame(top)
@@ -410,10 +429,10 @@ class App(tk.Tk):
         sf.pack(fill="x", padx=4, pady=4)
         line = tk.Frame(sf, bg="#e9eef3")
         line.pack(fill="x", padx=8, pady=(2, 0))
-        self.pct_lbl = tk.Label(line, text="0%", width=5, anchor="e", bg="#e9eef3", font=("Segoe UI", 10, "bold"))
+        self.pct_lbl = tk.Label(line, text="0%", width=5, anchor="e", bg="#e9eef3", font=(UI_FONT, 10, "bold"))
         self.pct_lbl.pack(side="right")
         self.state_lbl = tk.Label(line, text="IDLE  待機", bg="#e9eef3", anchor="w",
-                                  font=("Segoe UI", 10, "bold"), fg="#444")
+                                  font=(UI_FONT, 10, "bold"), fg="#444")
         self.state_lbl.pack(side="left")
         self.msg_lbl = tk.Label(line, text="Load a file, Connect, then run a command.", bg="#e9eef3",
                                 anchor="w", fg="#333")
@@ -431,7 +450,7 @@ class App(tk.Tk):
                   foreground="#666").pack(side="left", padx=10)
         self.log_frame = ttk.LabelFrame(self, text="Log", padding=2)
         self.log_text = tk.Text(self.log_frame, height=16, bg="#10141a", fg="#9be39b", insertbackground="white",
-                                font=("Consolas", 10), state="disabled", wrap="word")
+                                font=(MONO_FONT, 10), state="disabled", wrap="word")
         sb = ttk.Scrollbar(self.log_frame, command=self.log_text.yview)
         self.log_text.configure(yscrollcommand=sb.set)
         sb.pack(side="right", fill="y")
@@ -477,15 +496,15 @@ class App(tk.Tk):
         win.transient(self)
         win.resizable(False, False)
         win.withdraw()
-        ttk.Label(win, text=APP_NAME, font=("Segoe UI", 14, "bold")).grid(
+        ttk.Label(win, text=APP_NAME, font=(UI_FONT, 14, "bold")).grid(
             row=0, column=0, columnspan=2, sticky="w", padx=14, pady=(12, 0))
         ttk.Label(win, text="1.2 V SPI-NOR flash programmer (USB bridge on a Curiosity Nano)",
                   foreground="#666").grid(row=1, column=0, columnspan=2, sticky="w", padx=14, pady=(0, 8))
         for r, (k, v) in enumerate(self.about_lines(), start=2):
-            ttk.Label(win, text=k + ":", font=("Segoe UI", 10, "bold")).grid(row=r, column=0, sticky="nw",
+            ttk.Label(win, text=k + ":", font=(UI_FONT, 10, "bold")).grid(row=r, column=0, sticky="nw",
                                                                            padx=(14, 8), pady=1)
             if k == "GitHub":                 # clickable: opens the repository in the default browser
-                lb = tk.Label(win, text=v, fg="#0b5cad", cursor="hand2", font=("Segoe UI", 9, "underline"))
+                lb = tk.Label(win, text=v, fg="#0b5cad", cursor="hand2", font=(UI_FONT, 9, "underline"))
                 lb.bind("<Button-1>", lambda e: webbrowser.open(GITHUB_URL))
                 lb.grid(row=r, column=1, sticky="w", padx=(0, 14), pady=1)
                 continue
@@ -700,8 +719,7 @@ class App(tk.Tk):
             os.makedirs(os.path.dirname(self.custom_file), exist_ok=True)
             if not os.path.isfile(self.custom_file):
                 flashdb.save_custom(self.custom_file, items)
-            if hasattr(os, "startfile"):
-                os.startfile(os.path.dirname(self.custom_file))
+            open_path(os.path.dirname(self.custom_file))
 
         tv.bind("<<TreeviewSelect>>", on_select)
         bf = ttk.Frame(dlg)
@@ -779,7 +797,7 @@ class App(tk.Tk):
 
     def open_history(self):
         if os.path.exists(self.stats.hist):
-            os.startfile(self.stats.hist)
+            open_path(self.stats.hist)
         else:
             messagebox.showinfo("History", "No program history yet.")
 
@@ -834,7 +852,7 @@ class App(tk.Tk):
             return
         sel = self.port_var.get()
         if not sel:
-            messagebox.showwarning("Port", "Select a COM port first (Curiosity Virtual COM Port).")
+            messagebox.showwarning("Port", "Select a %s first (Curiosity Virtual COM Port)." % ("COM port" if IS_WIN else "serial port (e.g. /dev/ttyACM0)"))
             return
         port = sel.split(" - ")[0]
         try:
@@ -1408,7 +1426,7 @@ class App(tk.Tk):
         self.raw_win.title("Raw Monitor (commands and replies)")
         self.raw_win.withdraw()
         self.raw_text = tk.Text(self.raw_win, width=80, height=24, state="disabled",
-                                bg="#10141a", fg="#dddddd", font=("Consolas", 10))
+                                bg="#10141a", fg="#dddddd", font=(MONO_FONT, 10))
         self.raw_text.pack(fill="both", expand=True)
         ent = ttk.Entry(self.raw_win)
         ent.pack(fill="x")

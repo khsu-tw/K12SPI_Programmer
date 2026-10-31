@@ -102,12 +102,12 @@
     {
       "label": "GUI: Run",
       "type": "shell",
-      "command": "./tools/py.sh",
+      "command": "./Private/tools/py.sh",
       "args": [
         "gui/mx25s1633_gui.py"
       ],
       "windows": {
-        "command": "tools/py.cmd",
+        "command": "Private/tools/py.cmd",
         "options": {
           "shell": {
             "executable": "cmd.exe",
@@ -135,10 +135,10 @@
     {
       "label": "GUI: Build Windows EXE",
       "type": "shell",
-      "command": "gui/build_exe.bat",
+      "command": "gui/Win/build_win.bat",
       "args": [],
       "windows": {
-        "command": "gui/build_exe.bat",
+        "command": "gui/Win/build_win.bat",
         "options": {
           "shell": {
             "executable": "cmd.exe",
@@ -166,17 +166,17 @@
     {
       "label": "Test: pytest",
       "type": "shell",
-      "command": "./tools/py.sh",
+      "command": "./Private/tools/py.sh",
       "args": [
         "-m",
         "pytest",
         "-v",
         "-p",
         "no:cacheprovider",
-        "tests"
+        "Private/tests"
       ],
       "windows": {
-        "command": "tools/py.cmd",
+        "command": "Private/tools/py.cmd",
         "options": {
           "shell": {
             "executable": "cmd.exe",
@@ -193,7 +193,7 @@
           "-v",
           "-p",
           "no:cacheprovider",
-          "tests"
+          "Private/tests"
         ]
       },
       "options": {

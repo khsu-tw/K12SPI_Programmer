@@ -10,7 +10,7 @@ setlocal
 set "ARG=%~1"
 if not defined ARG set "ARG=18f16q20"
 set "PART="
-if /i "%ARG%"=="18f16q20" (set "HEX=%~dp0prebuilt\mx25_bridge_pic18f16q20.hex" & set "PART=18F16Q20")
+if /i "%ARG%"=="18f16q20" (set "HEX=%~dp0prebuilt\K1V2SPI_FW_PIC18F16Q20.hex" & set "PART=18F16Q20")
 if not defined HEX set "HEX=%ARG%"
 if not exist "%HEX%" (echo [ERROR] HEX not found: %HEX% & exit /b 1)
 if /i "%~2"=="--dragdrop" goto :dragdrop
@@ -27,7 +27,7 @@ REM -OL on every call: IPE otherwise leaves the MCU held in reset and the bridge
 "%IPECMD%" -TPnEDBG -P%PART% -GF"%RB%" -OL
 popd
 if not exist "%RB%" (echo [ERROR] read-back failed, cannot verify. & exit /b 4)
-call "%~dp0..\tools\py.cmd" -I "%~dp0verify_hex.py" "%HEX%" "%RB%"
+call "%~dp0..\Private\tools\py.cmd" -I "%~dp0verify_hex.py" "%HEX%" "%RB%"
 if errorlevel 1 (echo [ERROR] VERIFY FAILED: the Nano does not contain this HEX. & exit /b 5)
 echo Programmed and verified %HEX% (%PART%).
 exit /b 0

@@ -1,6 +1,6 @@
 """SPI-NOR identification: JEDEC ID database + JESD216H SFDP parser (pure Python, no GUI/serial imports).
 
-Supported 1.2 V parts (datasheets in DOC/):
+Supported 1.2 V parts (datasheets in Private/Datasheet/):
   Macronix  MX25S1633F     C2 2B 25   16 Mbit   Vcc 1.14-1.6 V
   GigaDevice GD25UF16E     C8 83 15   16 Mbit   Vcc 1.14-1.26 V
   Winbond   W25Q65NE       EF 65 17   64 Mbit   Vcc 1.14-1.26 V
@@ -82,7 +82,7 @@ KNOWN = {
     (0xC2, 0x2B, 0x25): FlashInfo("Macronix", "MX25S1633F", (0xC2, 0x2B, 0x25), 0x200000, SR1_MX, 57.0, 0xFC, (1.14, 1.6), False),
     (0xC8, 0x83, 0x15): FlashInfo("GigaDevice", "GD25UF16E", (0xC8, 0x83, 0x15), 0x200000, SR1_GD, 50.0, 0xFC, (1.14, 1.26), True),
     (0xEF, 0x65, 0x17): FlashInfo("Winbond", "W25Q65NE", (0xEF, 0x65, 0x17), 0x800000, SR1_W, 140.0, 0xFC, (1.14, 1.26), True),
-    # W25Q32NE RevE (DOC/): 9Fh = EF 6516h, 32 Mbit, SR1 SRP/SEC/TB/BP2-0, SR2 via 31h, tCE max 70 s
+    # W25Q32NE RevE (Private/Datasheet/): 9Fh = EF 6516h, 32 Mbit, SR1 SRP/SEC/TB/BP2-0, SR2 via 31h, tCE max 70 s
     # (IoT mode only slows page program / sector / block erase, not chip erase). Verified on a real part.
     (0xEF, 0x65, 0x16): FlashInfo("Winbond", "W25Q32NE", (0xEF, 0x65, 0x16), 0x400000,
                                   SR1_W, 70.0, 0xFC, (1.14, 1.26), True),
@@ -90,7 +90,7 @@ KNOWN = {
 
 BUILTIN = frozenset(KNOWN)
 
-# W25Q64NE (DOC/W25Q64NE RevB2) is deliberately NOT supported: it answers 9Fh = EF 6517h exactly like the
+# W25Q64NE (Private/Datasheet/W25Q64NE RevB2) is deliberately NOT supported: it answers 9Fh = EF 6517h exactly like the
 # W25Q65NE and has the same 64 Mbit SFDP density, so the two cannot be told apart. The user chose to keep the
 # W25Q65NE only (2026-10-20). Note a W25Q64NE detected as W25Q65NE would need longer waits than the W25Q65NE
 # values: tCE 160 s vs 140 s, tRES1 50 us vs 20 us.
@@ -414,7 +414,7 @@ def identify(jedec, sfdp=None):
         res["blockers"].append("SFDP not readable (JESD216 SFDP is required to identify the device)")
         return res
     if info and not info.datasheet:
-        res["warnings"].append("%s: datasheet not in DOC/; capacity from SFDP, SR bits / erase time borrowed "
+        res["warnings"].append("%s: datasheet not in Private/Datasheet/; capacity from SFDP, SR bits / erase time borrowed "
                                "from a related part" % info.part)
     if info and key in ALIASES:
         res["warnings"].append("ID %02X %02X %02X is not the datasheet value (%02X %02X %02X) but SFDP is checked" %
